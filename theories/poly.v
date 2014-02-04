@@ -250,7 +250,8 @@ Definition poly := locked_with poly_key poly_expanded_def.
 Canonical poly_unlockable := [unlockable fun poly].
 Local Notation "\poly_ ( i < n ) E" := (poly n (fun i : nat => E)).
 
-Lemma polyseq_poly n E :
+(*BETA: need to add (E : nat -> _) so the evar for E does not get n.-1 in its subs*)
+Lemma polyseq_poly n (E : nat -> _) :
   E n.-1 != 0 -> \poly_(i < n) E i = mkseq [eta E] n :> seq R.
 Proof.
 rewrite unlock; case: n => [|n] nzEn; first by rewrite polyseqC eqxx.
@@ -260,7 +261,8 @@ Qed.
 Lemma size_poly n E : size (\poly_(i < n) E i) <= n.
 Proof. by rewrite unlock (leq_trans (size_Poly _)) ?size_mkseq. Qed.
 
-Lemma size_poly_eq n E : E n.-1 != 0 -> size (\poly_(i < n) E i) = n.
+(*BETA: idem *)
+Lemma size_poly_eq n (E : nat -> _) : E n.-1 != 0 -> size (\poly_(i < n) E i) = n.
 Proof. by move/polyseq_poly->; apply: size_mkseq. Qed.
 
 Lemma coef_poly n E k : (\poly_(i < n) E i)`_k = (if k < n then E k else 0).
@@ -270,7 +272,8 @@ have [lt_kn | le_nk] := ltnP k n; first by rewrite nth_mkseq.
 by rewrite nth_default // size_mkseq.
 Qed.
 
-Lemma lead_coef_poly n E :
+(*BETA:idem*)
+Lemma lead_coef_poly n (E : nat -> _) :
   n > 0 -> E n.-1 != 0 -> lead_coef (\poly_(i < n) E i) = E n.-1.
 Proof.
 by case: n => // n _ nzE; rewrite /lead_coef size_poly_eq // coef_poly leqnn.
@@ -1368,7 +1371,47 @@ Section PolyOverRing.
 
 Context (S : pred_class) (ringS : @subringPred R S) (kS : keyed_pred ringS).
 Canonical polyOver_smulrPred := SmulrPred (polyOver_mulr_closed kS).
+(*BETA: no clue what's going on here*)
+(*
 Canonical polyOver_subringPred := SubringPred (polyOver_mulr_closed kS).
+*)
+Canonical polyOver_subringPred := @SubringPred poly_ringType
+  (@has_quality (Datatypes.S O) (GRing.Ring.sort poly_ringType)
+     (polyOver
+        (@unkey_pred (GRing.Zmodule.sort (GRing.Ring.zmodType R)) S
+           (@GRing.Pred.add_key (GRing.Ring.zmodType R) S
+              (@GRing.Pred.zmod_add (GRing.Ring.zmodType R) S
+                 (@GRing.Pred.subring_zmod R S ringS))) kS)))
+  (@polyOver_zmodPred S (@GRing.Pred.subring_zmod R S ringS) kS)
+  (@keyed_qualifier_keyed (GRing.Ring.sort poly_ringType) 
+     (Datatypes.S O)
+     (polyOver
+        (@unkey_pred (GRing.Zmodule.sort (GRing.Ring.zmodType R)) S
+           (@GRing.Pred.add_key (GRing.Ring.zmodType R) S
+              (@GRing.Pred.zmod_add (GRing.Ring.zmodType R) S
+                 (@GRing.Pred.subring_zmod R S ringS))) kS))
+     (@GRing.Pred.opp_key (GRing.Ring.zmodType poly_ringType)
+        (@has_quality (Datatypes.S O) (GRing.Ring.sort poly_ringType)
+           (polyOver
+              (@unkey_pred (GRing.Zmodule.sort (GRing.Ring.zmodType R)) S
+                 (@GRing.Pred.add_key (GRing.Ring.zmodType R) S
+                    (@GRing.Pred.zmod_add (GRing.Ring.zmodType R) S
+                       (@GRing.Pred.subring_zmod R S ringS))) kS)))
+        (@GRing.Pred.zmod_opp (GRing.Ring.zmodType poly_ringType)
+           (@has_quality (Datatypes.S O) (GRing.Ring.sort poly_ringType)
+              (polyOver
+                 (@unkey_pred (GRing.Zmodule.sort (GRing.Ring.zmodType R)) S
+                    (@GRing.Pred.add_key (GRing.Ring.zmodType R) S
+                       (@GRing.Pred.zmod_add (GRing.Ring.zmodType R) S
+                          (@GRing.Pred.subring_zmod R S ringS))) kS)))
+           (@polyOver_zmodPred S (@GRing.Pred.subring_zmod R S ringS) kS)))
+      (polyOver_keyed
+        (@unkey_pred (GRing.Zmodule.sort (GRing.Ring.zmodType R)) S
+           (@GRing.Pred.add_key (GRing.Ring.zmodType R) S
+              (@GRing.Pred.zmod_add (GRing.Ring.zmodType R) S
+                 (@GRing.Pred.subring_zmod R S ringS))) kS)))
+  (@polyOver_mulr_closed S (@GRing.Pred.subring_semi R S ringS) kS)
+.
 
 Lemma polyOverXsubC c : ('X - c%:P \in polyOver kS) = (c \in kS).
 Proof. by rewrite rpredBl ?polyOverX ?polyOverC. Qed.

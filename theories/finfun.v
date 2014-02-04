@@ -185,8 +185,11 @@ Definition finfun_eqMixin :=
 Canonical finfun_eqType := Eval hnf in EqType _ finfun_eqMixin.
 Canonical finfun_of_eqType := Eval hnf in [eqType of fT].
 
+(*BETA*)
 Definition pfamily_mem y mD (mF : aT -> mem_pred rT) :=
-  family (fun i : aT => if in_mem i mD then pred_of_simpl (mF i) else pred1 y).
+  family (fun i : aT => 
+            (* the if then else was putting [true] in the substitution of an evar *)
+            match in_mem i mD with true => pred_of_simpl (mF i) | _ => pred1 y end).
 
 Lemma pfamilyP (pT : predType rT) y D (F : aT -> pT) f :
   reflect (y.-support f \subset D /\ {in D, forall x, f x \in F x})
