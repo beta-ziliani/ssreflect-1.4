@@ -1,0 +1,8 @@
+Require Import mtac.
+
+Require Import ssreflect.
+
+Inductive CtxType : Type :=
+    base : forall (A : Type), A  -> CtxType
+  | tele : forall (A : Type) (B : A -> Type) (C : Type) (t : A),
+           (C -> tpatt A B t) -> tpatt A B t
