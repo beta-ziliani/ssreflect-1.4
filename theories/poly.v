@@ -1372,9 +1372,8 @@ Section PolyOverRing.
 Context (S : pred_class) (ringS : @subringPred R S) (kS : keyed_pred ringS).
 Canonical polyOver_smulrPred := SmulrPred (polyOver_mulr_closed kS).
 (*BETA: no clue what's going on here*)
-(*
 Canonical polyOver_subringPred := SubringPred (polyOver_mulr_closed kS).
-*)
+(*
 Canonical polyOver_subringPred := @SubringPred poly_ringType
   (@has_quality (Datatypes.S O) (GRing.Ring.sort poly_ringType)
      (polyOver
@@ -1412,7 +1411,7 @@ Canonical polyOver_subringPred := @SubringPred poly_ringType
                  (@GRing.Pred.subring_zmod R S ringS))) kS)))
   (@polyOver_mulr_closed S (@GRing.Pred.subring_semi R S ringS) kS)
 .
-
+*)
 Lemma polyOverXsubC c : ('X - c%:P \in polyOver kS) = (c \in kS).
 Proof. by rewrite rpredBl ?polyOverX ?polyOverC. Qed.
 

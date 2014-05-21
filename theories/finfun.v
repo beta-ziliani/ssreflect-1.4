@@ -187,7 +187,8 @@ Canonical finfun_of_eqType := Eval hnf in [eqType of fT].
 
 (*BETA*)
 Definition pfamily_mem y mD (mF : aT -> mem_pred rT) :=
-  family (fun i : aT => 
+  family (fun i : aT =>
+            (* if in_mem i mD then pred_of_simpl (mF i) else pred1 y *)
             (* the if then else was putting [true] in the substitution of an evar *)
             match in_mem i mD with true => pred_of_simpl (mF i) | _ => pred1 y end).
 

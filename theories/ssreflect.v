@@ -311,7 +311,7 @@ Proof. unlock; discriminate. Qed.
 Ltac done :=
   trivial; hnf; intros; solve
    [ do ![solve [trivial | apply: sym_equal; trivial]
-         | discriminate | contradiction | split]
+         | discriminate | contradiction | split | simpl]
    | case not_locked_false_eq_true; assumption
    | match goal with H : ~ _ |- _ => solve [case H; trivial] end ].
 
