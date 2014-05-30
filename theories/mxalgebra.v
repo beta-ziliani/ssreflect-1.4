@@ -2414,7 +2414,10 @@ Lemma mxring_idP m n (R : 'A_(m, n)) :
   reflect (exists e, mxring_id R e) (has_mxring_id R).
 Proof.
 apply: (iffP andP) => [[nzR] | [e [nz_e Re ideR idRe]]].
-  case/submxP=> v; rewrite -[v]vec_mxK; move/vec_mx: v => e.
+  case/submxP=> v. rewrite -[v]vec_mxK. 
+Unset Use Munify. move/vec_mx: v. Set Use Munify. (*** BETA: it expects terms to be reduced *)
+  move=> e.
+(*  case/submxP=> v; rewrite -[v]vec_mxK; move/vec_mx: v => e.  *)
   rewrite !mul_mx_row; case/eq_row_mx => /eqP.
   rewrite eq_sym -submxE => Re.
   case/eq_row_mx; rewrite !{1}mul_rV_lin1 /= mxvecK.

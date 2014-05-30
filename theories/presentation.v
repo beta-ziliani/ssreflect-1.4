@@ -106,7 +106,7 @@ Local Coercion Formula : formula >-> type.
 Inductive env gT := Env of {set gT} & seq gT.
 Definition env1 {gT} (x : gT : finType) := Env <[x]> [:: x].
 
-Fixpoint sat gT vT B n (s : vT -> env gT) p :=
+Fixpoint sat gT vT (B : set_of_finType gT) n (s : vT -> env gT) p :=
   match p with
   | Formula f =>
     [exists v, let: Env A e := s v in and_rel A B (rel (rev e) f NoRel)]

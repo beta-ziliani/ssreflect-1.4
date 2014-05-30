@@ -978,7 +978,6 @@ Import Monoid.
 Variable T : finType.
 
 Canonical setI_monoid := Law (@setIA T) (@setTI T) (@setIT T).
-
 Canonical setI_comoid := ComLaw (@setIC T).
 Canonical setI_muloid := MulLaw (@set0I T) (@setI0 T).
 

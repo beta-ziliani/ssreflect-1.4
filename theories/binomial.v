@@ -118,7 +118,10 @@ rewrite (eq_bigl (xpredD1 ltv Fp0)) => [|i]; last first.
     by case: eqP => // E; rewrite ?E !andbF.
   by rewrite vFpK //eqxx vFp0.
 rewrite -{2}[mFp]/mFpM -[mFpM _ _]big_split -/mFpM.
-by rewrite big1 ?mFp1r //= => i /andP[]; auto.
+Unset Use Munify. 
+rewrite big1 //=. 
+Set Use Munify.
+by rewrite ?mFp1r //= => i /andP[]; auto.
 Qed.
 
 (** The falling factorial *)
