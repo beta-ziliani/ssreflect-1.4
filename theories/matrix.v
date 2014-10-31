@@ -211,7 +211,7 @@ Definition mx_val A := let: Matrix g := A in g.
 Canonical matrix_subType := Eval hnf in [newType for mx_val].
 
 Fact matrix_key : unit. Proof. by []. Qed.
-Definition matrix_of_fun_def F := Matrix [ffun ij => F ij.1 ij.2].
+Definition matrix_of_fun_def (F : _ -> _ -> R) := Matrix [ffun ij => F ij.1 ij.2].
 Definition matrix_of_fun k := locked_with k matrix_of_fun_def.
 Canonical matrix_unlockable k := [unlockable fun matrix_of_fun k].
 
@@ -312,8 +312,8 @@ Implicit Type A : 'M[R]_(m, n).
 
 (* Reshape a matrix, to accomodate the block functions for instance. *)
 Definition castmx m' n' (eq_mn : (m = m') * (n = n')) A : 'M_(m', n') :=
-  let: erefl in _ = m' := eq_mn.1 return 'M_(m', n') in
-  let: erefl in _ = n' := eq_mn.2 return 'M_(m, n') in A.
+  let: erefl in _ = m' := eq_mn.1 return 'M[R]_(m', n') in
+  let: erefl in _ = n' := eq_mn.2 return 'M[R]_(m, n') in A.
 
 Definition conform_mx m' n' B A :=
   match m =P m', n =P n' with
@@ -2120,13 +2120,13 @@ Proof. by split; [exact: map_mxM | exact: map_mx1]. Qed.
 
 Canonical map_mx_rmorphism n' := AddRMorphism (map_mx_is_multiplicative n').
 
-Lemma map_lin1_mx m n (g : 'rV_m -> 'rV_n) gf :
+Lemma map_lin1_mx m n (g : 'rV_m -> 'rV_n) (gf : _ -> 'rV_n) :
   (forall v, (g v)^f = gf v^f) -> (lin1_mx g)^f = lin1_mx gf.
 Proof.
 by move=> def_gf; apply/matrixP=> i j; rewrite !mxE -map_delta_mx -def_gf mxE.
 Qed.
 
-Lemma map_lin_mx m1 n1 m2 n2 (g : 'M_(m1, n1) -> 'M_(m2, n2)) gf : 
+Lemma map_lin_mx m1 n1 m2 n2 (g : 'M_(m1, n1) -> 'M_(m2, n2)) (gf : _ -> _) : 
   (forall A, (g A)^f = gf A^f) -> (lin_mx g)^f = lin_mx gf.
 Proof.
 move=> def_gf; apply: map_lin1_mx => A /=.
@@ -2415,7 +2415,7 @@ Proof.
 apply/matrixP=> i1 i2; rewrite !mxE; case Di: (i1 == i2).
   rewrite (eqP Di) (expand_det_row _ i2) //=.
   by apply: eq_bigr => j _; congr (_ * _); rewrite mxE.
-pose B := \matrix_(i, j) (if i == i2 then A i1 j else A i j).
+pose B := \matrix_(i, j) (if i == i2 return GRing.ComRing.sort R then A i1 j else A i j).
 have EBi12: B i1 =1 B i2 by move=> j; rewrite /= !mxE Di eq_refl.
 rewrite -[_ *+ _](determinant_alternate (negbT Di) EBi12) (expand_det_row _ i2).
 apply: eq_bigr => j _; rewrite !mxE eq_refl; congr (_ * (_ * _)).
@@ -2488,7 +2488,7 @@ Variable n : nat.
 Implicit Type A : 'M[R]_n.
 
 Definition unitmx : pred 'M[R]_n := fun A => \det A \is a GRing.unit.
-Definition invmx A := if A \in unitmx then (\det A)^-1 *: \adj A else A.
+Definition invmx A := if A \in unitmx return GRing.Zmodule.sort (GRing.Zmodule.Pack (GRing.Lmodule.class (matrix_lmodType R n n)) (matrix_lmodType R n n))  then (\det A)^-1 *: \adj A else A.
 
 Lemma unitmxE A : (A \in unitmx) = (\det A \is a GRing.unit).
 Proof. by []. Qed.

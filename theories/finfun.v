@@ -186,7 +186,7 @@ Canonical finfun_eqType := Eval hnf in EqType _ finfun_eqMixin.
 Canonical finfun_of_eqType := Eval hnf in [eqType of fT].
 
 Definition pfamily_mem y mD (mF : aT -> mem_pred rT) :=
-  family (fun i : aT => if in_mem i mD then pred_of_simpl (mF i) else pred1 y).
+  family (fun i : aT => if in_mem i mD return pred rT then pred_of_simpl (mF i) else pred1 y).
 
 Lemma pfamilyP (pT : predType rT) y D (F : aT -> pT) f :
   reflect (y.-support f \subset D /\ {in D, forall x, f x \in F x})
@@ -259,8 +259,8 @@ elim: {D}(enum _) {2 4}D => [|x0 s IHs] D eqDs => [_|] /=.
   apply/familyP/eqP=> [f_y0 | ->{f} x]; last by rewrite ffunE -eqDs !inE.
   by apply/ffunP=> x; have:= f_y0 x; rewrite -eqDs ffunE => /eqP.
 case/andP=> /negPf nsx0 /(IHs (mem s)) <- {IHs}//.
-pose g1 (f : fT) := (f x0, [ffun x => if x == x0 then y0 else f x]).
-pose g2 (xf : rT * fT) := [ffun x => if x == x0 then xf.1 else xf.2 x].
+pose g1 (f : fT) := (f x0, [ffun x => if x == x0 return Equality.sort rT then y0 else f x]).
+pose g2 (xf : rT * fT) := [ffun x => if x == x0 return Finite.sort rT then xf.1 else xf.2 x].
 have g1K: cancel g1 g2.
   by move=> f; apply/ffunP=> x; rewrite !ffunE; case: eqP => // ->.
 rewrite -cardX -(card_image (can_inj g1K)); apply: eq_card => [] [y f] /=.

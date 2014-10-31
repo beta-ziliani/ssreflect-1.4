@@ -119,14 +119,14 @@ Definition redivp_rec (q : {poly R})  :=
   let sq := size q in
   let cq := lead_coef q in
    fix loop (k : nat) (qq r : {poly R})(n : nat) {struct n} :=
-    if size r < sq then (k, qq, r) else
+    if size r < sq return (nat * {poly R} * {poly R}) then (k, qq, r) else
     let m := (lead_coef r) *: 'X^(size r - sq) in
     let qq1 := qq * cq%:P + m in
     let r1 := r * cq%:P - m * q in
        if n is n1.+1 then loop k.+1 qq1 r1 n1 else (k.+1, qq1, r1).
 
 Definition redivp_expanded_def p q :=
-   if q == 0 then (0%N, 0, p) else redivp_rec q 0 0 p (size p).
+   if q == 0 return (nat * {poly R} * {poly R}) then (0%N, 0, p) else redivp_rec q 0 0 p (size p).
 Fact redivp_key : unit. Proof. by []. Qed.
 Definition redivp : {poly R} -> {poly R} -> nat * {poly R} * {poly R} :=
  locked_with redivp_key redivp_expanded_def.
@@ -314,11 +314,11 @@ Lemma rdvdp_leq p q : rdvdp p q -> q != 0 -> size p <= size q.
 Proof. by move=> dvd_pq; rewrite leqNgt; apply: contra => /rmodp_small <-. Qed.
 
 Definition rgcdp p q :=
-  let: (p1, q1) := if size p < size q then (q, p) else (p, q) in
-  if p1 == 0 then q1 else
+  let: (p1, q1) := if size p < size q return ({poly R}*{poly R}) then (q, p) else (p, q) in
+  if p1 == 0 return {poly R} then q1 else
   let fix loop (n : nat) (pp qq : {poly R}) {struct n} :=
       let rr := rmodp pp qq in
-      if rr == 0 then qq else
+      if rr == 0 return {poly R} then qq else
       if n is n1.+1 then loop n1 qq rr else rr in
   loop (size p1) p1 q1.
 
@@ -336,12 +336,12 @@ by case: ifP => /= p0; rewrite ?(eqxx, p0) // (eqP p0).
 Qed.
 
 Lemma rgcdpE p q :
-  rgcdp p q = if size p < size q
+  rgcdp p q = if size p < size q return {poly R}
     then rgcdp (rmodp q p) p else rgcdp (rmodp p q) q.
 Proof.
 pose rgcdp_rec := fix rgcdp_rec (n : nat) (pp qq : {poly R}) {struct n} :=
    let rr := rmodp pp qq in
-   if rr == 0 then qq else
+   if rr == 0 return {poly R} then qq else
    if n is n1.+1 then rgcdp_rec n1 qq rr else rr.
 have Irec: forall m n p q, size q <= m -> size q <= n
       -> size q < size p -> rgcdp_rec m p q = rgcdp_rec n p q.
@@ -426,8 +426,8 @@ Qed.
 Definition rcoprimep (p q : {poly R}) := size (rgcdp p q) == 1%N.
 
 Fixpoint rgdcop_rec q p n :=
-  if n is m.+1 then
-      if rcoprimep p q then p
+  if n is m.+1 return {poly R} then
+      if rcoprimep p q return {poly R} then p
         else rgdcop_rec q (rdivp p (rgcdp p q)) m
     else (q == 0)%:R.
 
@@ -791,7 +791,7 @@ Implicit Type p q r d : {poly R}.
 
 Definition edivp_expanded_def p q :=
   let: (k, d, r) as edvpq := redivp p q in
-  if lead_coef q \in GRing.unit then
+  if lead_coef q \in GRing.unit return (nat * GRing.Zmodule.Pack (GRing.Lmodule.class (poly_lmodType R)) (poly_lmodType R) * GRing.Zmodule.Pack (GRing.Lmodule.class (poly_lmodType R)) (poly_lmodType R))%type then
     (0%N, (lead_coef q)^-k *: d, (lead_coef q)^-k *: r)
   else edvpq.
 Fact edivp_key : unit. Proof. by []. Qed.
@@ -831,7 +831,7 @@ Lemma edivp_redivp p q : (lead_coef q \in GRing.unit) = false ->
 Proof. by move=> hu; rewrite unlock hu; case: (redivp p q) => [[? ?] ?]. Qed.
 
 Lemma divpE p q :
-  p %/ q = if lead_coef q \in GRing.unit
+  p %/ q = if lead_coef q \in GRing.unit return GRing.Zmodule.sort (GRing.Zmodule.Pack (GRing.Lmodule.class (poly_lmodType R)) (poly_lmodType R))
     then (lead_coef q)^-(rscalp p q) *: (rdivp p q)
     else rdivp p q.
 Proof.
@@ -839,7 +839,7 @@ by case ulcq: (lead_coef q \in GRing.unit); rewrite /divp unlock redivp_def ulcq
 Qed.
 
 Lemma modpE p q :
-  p %% q = if lead_coef q \in GRing.unit
+  p %% q = if lead_coef q \in GRing.unit return GRing.Zmodule.sort (GRing.Zmodule.Pack (GRing.Lmodule.class (poly_lmodType R)) (poly_lmodType R))
     then (lead_coef q)^-(rscalp p q) *: (rmodp p q)
     else rmodp p q.
 Proof.
@@ -847,7 +847,7 @@ by case ulcq: (lead_coef q \in GRing.unit); rewrite /modp unlock redivp_def ulcq
 Qed.
 
 Lemma scalpE p q :
-  scalp p q = if lead_coef q \in GRing.unit then 0%N else rscalp p q.
+  scalp p q = if lead_coef q \in GRing.unit return nat then 0%N else rscalp p q.
 Proof.
 by case ulcq: (lead_coef q \in GRing.unit); rewrite /scalp unlock redivp_def ulcq.
 Qed.
@@ -1636,11 +1636,11 @@ by rewrite (eqp_rtrans (eqp_scale _ _)) ?lc_expn_scalp_neq0.
 Qed.
 
 Definition gcdp_rec p q :=
-  let: (p1, q1) := if size p < size q then (q, p) else (p, q) in
-  if p1 == 0 then q1 else
+  let: (p1, q1) := if size p < size q return ({poly R}*{poly R})then (q, p) else (p, q) in
+  if p1 == 0 return {poly R} then q1 else
   let fix loop (n : nat) (pp qq : {poly R}) {struct n} :=
       let rr := modp pp qq in
-      if rr == 0 then qq else
+      if rr == 0 return {poly R} then qq else
       if n is n1.+1 then loop n1 qq rr else rr in
   loop (size p1) p1 q1.
 
@@ -1660,12 +1660,12 @@ by rewrite if_neg; case: ifP => /= p0; rewrite ?(eqxx, p0) // (eqP p0).
 Qed.
 
 Lemma gcdpE p q :
-  gcdp p q = if size p < size q
+  gcdp p q = if size p < size q return {poly R} 
     then gcdp (modp q p) p else gcdp (modp p q) q.
 Proof.
 pose gcdpE_rec := fix gcdpE_rec (n : nat) (pp qq : {poly R}) {struct n} :=
    let rr := modp pp qq in
-   if rr == 0 then qq else
+   if rr == 0 return {poly R} then qq else
    if n is n1.+1 then gcdpE_rec n1 qq rr else rr.
 have Irec: forall k l p q, size q <= k -> size q <= l
       -> size q < size p -> gcdpE_rec k p q = gcdpE_rec l p q.
@@ -2016,13 +2016,13 @@ Proof. rewrite !(coprimep_sym _ p); exact: eqp_coprimepr. Qed.
 (* This should be implemented with an extended remainder sequence *)
 Fixpoint egcdp_rec p q k {struct k} : {poly R} * {poly R} :=
   if k is k'.+1 then
-    if q == 0 then (1, 0) else
+    if q == 0 return {poly R}*{poly R} then (1, 0) else
     let: (u, v) := egcdp_rec q (p %% q) k' in
       (lead_coef q ^+ scalp p q *: v, (u - v * (p %/ q)))
   else (1, 0).
 
 Definition egcdp p q :=
-  if size q <= size p then egcdp_rec p q (size q)
+  if size q <= size p return {poly R}*{poly R} then egcdp_rec p q (size q)
     else let e := egcdp_rec q p (size p) in (e.2, e.1).
 
 (* No provable egcd0p *)
@@ -2328,7 +2328,7 @@ Qed.
 (* if P null, we pose that gdcop returns 1 if Q null, 0 otherwise*)
 Fixpoint gdcop_rec q p k :=
   if k is m.+1 then
-      if coprimep p q then p
+      if coprimep p q return {poly R} then p
         else gdcop_rec q (divp p (gcdp p q)) m
     else (q == 0)%:R.
 
@@ -2492,7 +2492,7 @@ Qed.
 
 
 Lemma dvdp_mul_XsubC p q c :
-  (p %| ('X - c%:P) * q) = ((if root p c then p %/ ('X - c%:P) else p) %| q).
+  (p %| ('X - c%:P) * q) = ((if root p c return GRing.Zmodule.sort (GRing.Zmodule.Pack (GRing.Lmodule.class (poly_lmodType R)) (poly_lmodType R)) then p %/ ('X - c%:P) else p) %| q).
 Proof.
 case: ifPn => [| not_pc0]; last by rewrite Gauss_dvdpr ?coprimep_XsubC.
 rewrite root_factor_theorem -eqp_div_XsubC mulrC => /eqP{1}->.

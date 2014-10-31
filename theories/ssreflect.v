@@ -311,7 +311,7 @@ Proof. unlock; discriminate. Qed.
 Ltac done :=
   trivial; hnf; intros; solve
    [ do ![solve [trivial | apply: sym_equal; trivial]
-         | discriminate | contradiction | split]
+         | discriminate | contradiction | split | simpl]
    | case not_locked_false_eq_true; assumption
    | match goal with H : ~ _ |- _ => solve [case H; trivial] end ].
 
@@ -361,7 +361,7 @@ Fixpoint nary_congruence_statement (n : nat)
   match n with
   | O => fun k => forall B, k B (fun x1 x2 : B => x1 = x2)
   | S n' =>
-    let k' A B e (f1 f2 : A -> B) :=
+    let k' A B (e : B -> B -> _) (f1 f2 : A -> B) :=
       forall x1 x2, x1 = x2 -> (e (f1 x1) (f2 x2) : Prop) in
     fun k => forall A, nary_congruence_statement n' (fun B e => k _ (k' A B e))
   end.

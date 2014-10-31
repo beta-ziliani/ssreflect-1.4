@@ -507,8 +507,10 @@ Section Morphism.
 Variables (aT rT sT : Type) (f : aT -> rT).
 
 (* Morphism property for unary and binary functions *)
-Definition morphism_1 aF rF := forall x, f (aF x) = rF (f x).
-Definition morphism_2 aOp rOp := forall x y, f (aOp x y) = rOp (f x) (f y).
+Set Printing Existential Instances.
+
+Definition morphism_1 aF (rF : _ -> _) := forall x, f (aF x) = rF (f x).
+Definition morphism_2 aOp (rOp : _ -> _ -> _) := forall x y, f (aOp x y) = rOp (f x) (f y).
 
 (* Homomorphism property for unary and binary relations *)
 Definition homomorphism_1 (aP rP : _ -> Prop) := forall x, aP x -> rP (f x).
@@ -606,9 +608,9 @@ Variables (rT aT : Type) (f : aT -> rT).
 
 Definition injective := forall x1 x2, f x1 = f x2 -> x1 = x2.
 
-Definition cancel g := forall x, g (f x) = x.
+Definition cancel (g : rT -> _) := forall x, g (f x) = x.
 
-Definition pcancel g := forall x, g (f x) = Some x.
+Definition pcancel (g : rT -> _) := forall x, g (f x) = Some x.
 
 Definition ocancel (g : aT -> option rT) h := forall x, oapp h x (g x) = x.
 

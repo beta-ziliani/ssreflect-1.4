@@ -129,7 +129,7 @@ Variables (T : finType) (A : {set T}) (f : T -> T).
 
 Hypotheses (injf : {in A &, injective f}) (sBf : f @: A \subset A).
 
-Lemma perm_in_inj : injective (fun x => if x \in A then f x else x).
+Lemma perm_in_inj : injective (fun x => if x \in A return Finite.sort T then f x else x).
 Proof.
 move=> x y /=; wlog Ay: x y / y \in A.
   by move=> IH eqfxy; case: ifP (eqfxy); [symmetry | case: ifP => //]; auto.

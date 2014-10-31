@@ -621,7 +621,7 @@ case: (eqVneq a 1) => [a1 | nta].
 apply/subsetP=> /= u /morphpreP[_ /set1P/= um1].
 have{um1}: Zp_unitm u a == Zp_unitm 1 a by rewrite um1 morph1.
 rewrite !autE ?cycle_id // eq_expg_mod_order.
-by rewrite -[n in _ == _ %[mod n]]Zp_cast ?order_gt1 // !modZp inE.
+Unset Use Munify. rewrite -[n in _ == _ %[mod n]]Zp_cast. Set Use Munify. by rewrite ?order_gt1 // !modZp inE. by rewrite ?order_gt1 // !modZp inE.
 Qed.
 
 Lemma generator_coprime m : generator <[a]> (a ^+ m) = coprime #[a] m.

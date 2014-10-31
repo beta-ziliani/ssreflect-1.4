@@ -32,7 +32,7 @@ Unset Printing Implicit Defensive.
 Definition edivn_rec d :=
   fix loop m q := if m - d is m'.+1 then loop m' q.+1 else (q, m).
 
-Definition edivn m d := if d > 0 then edivn_rec d.-1 m 0 else (0, m).
+Definition edivn m d := if d > 0 return (nat * nat) then edivn_rec d.-1 m 0 else (0, m).
 
 CoInductive edivn_spec m d : nat * nat -> Type :=
   EdivnSpec q r of m = q * d + r & (d > 0) ==> (r < d) : edivn_spec m d (q, r).
@@ -64,7 +64,7 @@ Notation "m %/ d" := (divn m d) : nat_scope.
 
 Definition modn_rec d := fix loop m := if m - d is m'.+1 then loop m' else m.
 
-Definition modn m d := if d > 0 then modn_rec d.-1 m else m.
+Definition modn m d := if d > 0 return nat then modn_rec d.-1 m else m.
 
 Notation "m %% d" := (modn m d) : nat_scope.
 Notation "m = n %[mod d ]" := (m %% d = n %% d) : nat_scope.
@@ -477,7 +477,7 @@ Fixpoint gcdn_rec m n :=
 
 Definition gcdn := nosimpl gcdn_rec.
 
-Lemma gcdnE m n : gcdn m n = if m == 0 then n else gcdn (n %% m) m.
+Lemma gcdnE m n : gcdn m n = if m == 0 return nat then n else gcdn (n %% m) m.
 Proof.
 rewrite /gcdn; elim: m {-2}m (leqnn m) n => [|s IHs] [|m] le_ms [|n] //=.
 case def_n': (_ %% _) => // [n'].
@@ -566,8 +566,8 @@ Fixpoint Bezout_rec km kn qs :=
 Fixpoint egcdn_rec m n s qs :=
   if s is s'.+1 then
     let: (q, r) := edivn m n in
-    if r > 0 then egcdn_rec n r s' (q :: qs) else
-    if odd (size qs) then qs else q.-1 :: qs
+    if r > 0 return seq nat then egcdn_rec n r s' (q :: qs) else
+    if odd (size qs) return seq nat then qs else q.-1 :: qs
   else [::0].
 
 Definition egcdn m n := Bezout_rec 0 1 (egcdn_rec m n n [::]).
@@ -589,7 +589,7 @@ case: edivnP => q r def_m; rewrite n_gt0 /= => lt_rn.
 case: posnP => [r0 {s le_ns IHs lt_rn}|r_gt0]; last first.
   by apply: IHs => //=; [rewrite (leq_trans lt_rn) | rewrite natTrecE -def_m].
 rewrite {r}r0 addn0 in def_m; set b := odd _; pose d := gcdn m n.
-pose km := ~~ b : nat; pose kn := if b then 1 else q.-1.
+pose km := ~~ b : nat; pose kn := if b return nat then 1 else q.-1.
 rewrite (_ : Bezout_rec _ _ _ = Bezout_rec km kn qs); last first.
   by rewrite /kn /km; case: (b) => //=; rewrite natTrecE addn0 muln1.
 have def_d: d = n by rewrite /d def_m gcdnC gcdnE modnMl gcd0n -[n]prednK.
@@ -661,7 +661,10 @@ Lemma muln_gcdr : right_distributive muln gcdn.
 Proof.
 move=> p m n; case: (posnP p) => [-> //| p_gt0].
 elim: {m}m.+1 {-2}m n (ltnSn m) => // s IHs m n; rewrite ltnS => le_ms.
-rewrite gcdnE [rhs in _ = rhs]gcdnE muln_eq0 (gtn_eqF p_gt0) -muln_modr //=.
+Unset Use Munify.
+rewrite gcdnE [rhs in _ = rhs]gcdnE.
+rewrite muln_eq0 (gtn_eqF p_gt0) -muln_modr //=.
+Set Use Munify.
 by case: posnP => // m_gt0; apply: IHs; apply: leq_trans le_ms; apply: ltn_pmod.
 Qed.
 

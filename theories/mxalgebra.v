@@ -195,7 +195,7 @@ Let LUr := locked_with Gaussian_elimination_key (@Gaussian_elimination) m n A.
 
 Definition col_ebase := LUr.1.1.
 Definition row_ebase := LUr.1.2.
-Definition mxrank := if [|| m == 0 | n == 0]%N then 0%N else LUr.2.
+Definition mxrank := if [|| m == 0 | n == 0]%N return nat then 0%N else LUr.2.
 
 Definition row_free := mxrank == m.
 Definition row_full := mxrank == n.
@@ -273,13 +273,13 @@ End LtmxIdentities.
 (*   The choice witness for genmx A is either 1%:M for a row-full A, or else  *)
 (* row_base A padded with null rows.                                          *)
 Let qidmx m n (A : 'M_(m, n)) :=
-  if m == n then A == pid_mx n else row_full A.
+  if m == n return bool then A == pid_mx n else row_full A.
 Let equivmx m n (A : 'M_(m, n)) idA (B : 'M_n) :=
   (B == A)%MS && (qidmx B == idA).
 Let equivmx_spec m n (A : 'M_(m, n)) idA (B : 'M_n) :=
   prod (B :=: A)%MS (qidmx B = idA).
 Definition genmx_witness m n (A : 'M_(m, n)) : 'M_n :=
-  if row_full A then 1%:M else pid_mx (\rank A) *m row_ebase A.
+  if row_full A return 'M_n then 1%:M else pid_mx (\rank A) *m row_ebase A.
 Definition genmx_def := idfun (fun m n (A : 'M_(m, n)) =>
    choose (equivmx A (row_full A)) (genmx_witness A) : 'M_n).
 Fact genmx_key : unit. Proof. by []. Qed.
@@ -292,7 +292,7 @@ Local Notation "<< A >>" := (genmx A) : matrix_set_scope.
 (* setwise sum is not quite strictly extensional.                             *)
 Let addsmx_nop m n (A : 'M_(m, n)) := conform_mx <<A>>%MS A.
 Definition addsmx_def := idfun (fun m1 m2 n (A : 'M_(m1, n)) (B : 'M_(m2, n)) =>
-  if A == 0 then addsmx_nop B else if B == 0 then addsmx_nop A else
+  if A == 0 return 'M_n then addsmx_nop B else if B == 0 return 'M_n then addsmx_nop A else
   <<col_mx A B>>%MS : 'M_n).
 Fact addsmx_key : unit. Proof. by []. Qed.
 Definition addsmx := locked_with addsmx_key addsmx_def.
@@ -320,16 +320,16 @@ Local Notation "\sum_ ( i <- r | P ) B" := (\big[addsmx/0]_(i <- r | P) B%MS)
 (* Thus A :&: B = 1%:M iff A and B are both identities, and this suffices for *)
 (* showing that associativity is strict.                                      *)
 Let capmx_witness m n (A : 'M_(m, n)) :=
-  if row_full A then conform_mx 1%:M A else <<A>>%MS.
+  if row_full A return 'M_n then conform_mx 1%:M A else <<A>>%MS.
 Let capmx_norm m n (A : 'M_(m, n)) :=
   choose (equivmx A (qidmx A)) (capmx_witness A).
 Let capmx_nop m n (A : 'M_(m, n)) := conform_mx (capmx_norm A) A.
 Definition capmx_gen m1 m2 n (A : 'M_(m1, n)) (B : 'M_(m2, n)) :=
   lsubmx (kermx (col_mx A B)) *m A.
 Definition capmx_def := idfun (fun m1 m2 n (A : 'M_(m1, n)) (B : 'M_(m2, n)) =>
-  if qidmx A then capmx_nop B else
-  if qidmx B then capmx_nop A else
-  if row_full B then capmx_norm A else capmx_norm (capmx_gen A B) : 'M_n).
+  if qidmx A return 'M_n then capmx_nop B else
+  if qidmx B return 'M_n then capmx_nop A else
+  if row_full B return 'M_n then capmx_norm A else capmx_norm (capmx_gen A B) : 'M_n).
 Fact capmx_key : unit. Proof. by []. Qed.
 Definition capmx := locked_with capmx_key capmx_def.
 Canonical capmx_unlockable := [unlockable fun capmx].
@@ -1840,7 +1840,7 @@ Let mxdirect_sums_recP (S_ : I -> mxsum_expr n n) :
 Proof.
 rewrite /TIsum; apply: (iffP eqnP) => /= [dxS i Pi | dxS].
   set Si' := (\sum_(j | _) unwrap (S_ j))%MS.
-  have: mxdirect (unwrap (S_ i) + Si') by apply/eqnP; rewrite /= -!(bigD1 i).
+  have: mxdirect (unwrap (S_ i) + Si'). apply/eqnP; rewrite /=. Unset Use Munify. by rewrite -!(bigD1 i). Set Use Munify.
   by rewrite mxdirect_addsE => /and3P[-> _ /eqP].  
 elim: _.+1 {-2 4}P (subxx P) (ltnSn #|P|) => // m IHm Q; move/subsetP=> sQP.
 case: (pickP Q) => [i Qi | Q0]; last by rewrite !big_pred0 ?mxrank0.
@@ -2414,7 +2414,7 @@ Lemma mxring_idP m n (R : 'A_(m, n)) :
   reflect (exists e, mxring_id R e) (has_mxring_id R).
 Proof.
 apply: (iffP andP) => [[nzR] | [e [nz_e Re ideR idRe]]].
-  case/submxP=> v; rewrite -[v]vec_mxK; move/vec_mx: v => e.
+  case/submxP=> v. rewrite -[v]vec_mxK. Unset Use Munify.  move/vec_mx: v => e. Set Use Munify.
   rewrite !mul_mx_row; case/eq_row_mx => /eqP.
   rewrite eq_sym -submxE => Re.
   case/eq_row_mx; rewrite !{1}mul_rV_lin1 /= mxvecK.

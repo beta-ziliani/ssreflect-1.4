@@ -227,7 +227,7 @@ Proof. by rewrite size_ncons addn0. Qed.
 
 Fixpoint seqn_type n := if n is n'.+1 then T -> seqn_type n' else seq T.
 
-Fixpoint seqn_rec f n : seqn_type n :=
+Fixpoint seqn_rec (f : _ -> seqn_type 0) n : seqn_type n :=
   if n is n'.+1 return seqn_type n then
     fun x => seqn_rec (fun s => f (x :: s)) n'
   else f [::].
@@ -340,19 +340,19 @@ Lemma nth_behead s n : nth (behead s) n = nth s n.+1.
 Proof. by case: s n => [|x s] [|n]. Qed.
 
 Lemma nth_cat s1 s2 n :
-  nth (s1 ++ s2) n = if n < size s1 then nth s1 n else nth s2 (n - size s1).
+  nth (s1 ++ s2) n = if n < size s1 return T then nth s1 n else nth s2 (n - size s1).
 Proof. by elim: s1 n => [|x s1 IHs] [|n]; try exact (IHs n). Qed.
 
 Lemma nth_rcons s x n :
   nth (rcons s x) n =
-    if n < size s then nth s n else if n == size s then x else x0.
+    if n < size s return T then nth s n else if n == size s return T then x else x0.
 Proof. by elim: s n => [|y s IHs] [|n] //=; rewrite ?nth_nil ?IHs. Qed.
 
 Lemma nth_ncons m x s n :
-  nth (ncons m x s) n = if n < m then x else nth s (n - m).
+  nth (ncons m x s) n = if n < m return T then x else nth s (n - m).
 Proof. by elim: m n => [|m IHm] [|n] //=; exact: IHm. Qed.
 
-Lemma nth_nseq m x n : nth (nseq m x) n = (if n < m then x else x0).
+Lemma nth_nseq m x n : nth (nseq m x) n = (if n < m return T  then x else x0).
 Proof. by elim: m n => [|m IHm] [|n] //=; exact: IHm. Qed.
 
 Lemma eq_from_nth s1 s2 :
@@ -382,7 +382,7 @@ by rewrite nth_default // subn_gt0.
 Qed.
 
 Lemma set_set_nth s n1 y1 n2 y2 (s2 := set_nth s n2 y2) :
-  set_nth (set_nth s n1 y1) n2 y2 = if n1 == n2 then s2 else set_nth s2 n1 y1.
+  set_nth (set_nth s n1 y1) n2 y2 = if n1 == n2 return seq T then s2 else set_nth s2 n1 y1.
 Proof.
 have [-> | ne_n12] := altP eqP.
   apply: eq_from_nth => [|i _]; first by rewrite !size_set_nth maxnA maxnn.
@@ -398,10 +398,10 @@ Section SeqFind.
 
 Variable a : pred T.
 
-Fixpoint find s := if s is x :: s' then if a x then 0 else (find s').+1 else 0.
+Fixpoint find s := if s is x :: s' then if a x return nat then 0 else (find s').+1 else 0.
 
 Fixpoint filter s :=
-  if s is x :: s' then if a x then x :: filter s' else filter s' else [::].
+  if s is x :: s' then if a x return seq T then x :: filter s' else filter s' else [::].
 
 Fixpoint count s := if s is x :: s' then a x + count s' else 0.
 
@@ -443,7 +443,7 @@ Lemma find_size s : find s <= size s.
 Proof. by elim: s => //= x s IHs; case (a x). Qed.
 
 Lemma find_cat s1 s2 :
-  find (s1 ++ s2) = if has s1 then find s1 else size s1 + find s2.
+  find (s1 ++ s2) = if has s1 return nat then find s1 else size s1 + find s2.
 Proof.
 by elim: s1 => //= x s1 IHs; case: (a x) => //; rewrite IHs (fun_if succn).
 Qed.
@@ -473,7 +473,7 @@ Lemma filter_cat s1 s2 : filter (s1 ++ s2) = filter s1 ++ filter s2.
 Proof. by elim: s1 => //= x s1 ->; case (a x). Qed.
 
 Lemma filter_rcons s x :
-  filter (rcons s x) = if a x then rcons (filter s) x else filter s.
+  filter (rcons s x) = if a x return seq T then rcons (filter s) x else filter s.
 Proof. by rewrite -!cats1 filter_cat /=; case (a x); rewrite /= ?cats0. Qed.
 
 Lemma count_cat s1 s2 : count (s1 ++ s2) = count s1 + count s2.
@@ -617,7 +617,7 @@ Proof. by elim: s n0 => [|x s IHs] [|n]; try exact (IHs n). Qed.
 
 Lemma drop_cat s1 s2 :
   drop n0 (s1 ++ s2) =
-    if n0 < size s1 then drop n0 s1 ++ s2 else drop (n0 - size s1) s2.
+    if n0 < size s1 return seq T then drop n0 s1 ++ s2 else drop (n0 - size s1) s2.
 Proof. by elim: s1 n0 => [|x s1 IHs] [|n]; try exact (IHs n). Qed.
 
 Lemma drop_size_cat n s1 s2 : size s1 = n -> drop n (s1 ++ s2) = s2.
@@ -656,7 +656,7 @@ Proof.
 by move/subnKC; rewrite -{2}(cat_take_drop s) size_cat size_drop => /addIn.
 Qed.
 
-Lemma size_take s : size (take n0 s) = if n0 < size s then n0 else size s.
+Lemma size_take s : size (take n0 s) = if n0 < size s return nat then n0 else size s.
 Proof.
 have [le_sn | lt_ns] := leqP (size s) n0; first by rewrite take_oversize.
 by rewrite size_takel // ltnW.
@@ -664,7 +664,7 @@ Qed.
 
 Lemma take_cat s1 s2 :
  take n0 (s1 ++ s2) =
-   if n0 < size s1 then take n0 s1 else s1 ++ take (n0 - size s1) s2.
+   if n0 < size s1 return seq T then take n0 s1 else s1 ++ take (n0 - size s1) s2.
 Proof.
 elim: s1 n0 => [|x s1 IHs] [|n] //=.
 by rewrite ltnS subSS -(fun_if (cons x)) -IHs.
@@ -1114,7 +1114,7 @@ Qed.
 (* Removing duplicates *)
 
 Fixpoint undup s :=
-  if s is x :: s' then if x \in s' then undup s' else x :: undup s' else [::].
+  if s is x :: s' then if x \in s' return seq T then undup s' else x :: undup s' else [::].
 
 Lemma size_undup s : size (undup s) <= size s.
 Proof. by elim: s => //= x s IHs; case: (x \in s) => //=; exact: ltnW. Qed.
@@ -1158,7 +1158,7 @@ Lemma nth_index x s : x \in s -> nth s (index x s) = x.
 Proof. by rewrite -has_pred1 => /(nth_find x0)/eqP. Qed.
 
 Lemma index_cat x s1 s2 :
- index x (s1 ++ s2) = if x \in s1 then index x s1 else size s1 + index x s2.
+ index x (s1 ++ s2) = if x \in s1 return nat then index x s1 else size s1 + index x s2.
 Proof. by rewrite /index find_cat has_pred1. Qed.
 
 Lemma index_uniq i s : i < size s -> uniq s -> index (nth s i) s = i.
@@ -1271,7 +1271,7 @@ elim: i j => [|i IHv] [|j] //=; rewrite ?eqSS //; by case j.
 Qed.
 
 Lemma size_incr_nth v i :
-  size (incr_nth v i) = if i < size v then size v else i.+1.
+  size (incr_nth v i) = if i < size v return nat then size v else i.+1.
 Proof.
 elim: v i => [|n v IHv] [|i] //=; first by rewrite size_ncons /= addn1.
 rewrite IHv; exact: fun_if.
@@ -1459,7 +1459,7 @@ rewrite catA -/(rot i s1) def_s1 /= -cat1s => /PcatCA/IHs/PcatCA; apply.
 by rewrite -(perm_cons x) -def_s1 perm_rot.
 Qed.
 
-Lemma catCA_perm_subst R F :
+Lemma catCA_perm_subst R (F : _ -> R) :
     (forall s1 s2 s3, F (s1 ++ s2 ++ s3) = F (s2 ++ s1 ++ s3) :> R) ->
   (forall s1 s2, perm_eq s1 s2 -> F s1 = F s2).
 Proof.
@@ -1542,7 +1542,7 @@ Lemma rotS n s : n < size s -> rot n.+1 s = rot 1 (rot n s).
 Proof. exact: (@rot_addn 1). Qed.
 
 Lemma rot_add_mod m n s : n <= size s -> m <= size s ->
-  rot m (rot n s) = rot (if m + n <= size s then m + n else m + n - size s) s.
+  rot m (rot n s) = rot (if m + n <= size s return nat then m + n else m + n - size s) s.
 Proof.
 move=> Hn Hm; case: leqP => [/rot_addn // | /ltnW Hmn]; symmetry.
 by rewrite -{2}(rotK n s) /rotr -rot_addn size_rot addnBA ?subnK ?addnK.
@@ -1656,7 +1656,7 @@ Implicit Type s : seq T.
 
 Fixpoint subseq s1 s2 :=
   if s2 is y :: s2' then
-    if s1 is x :: s1' then subseq (if x == y then s1' else s1) s2' else true
+    if s1 is x :: s1' then subseq (if x == y return seq T then s1' else s1) s2' else true
   else s1 == [::].
 
 Lemma sub0seq s : subseq [::] s. Proof. by case: s. Qed.
@@ -1762,7 +1762,7 @@ Section Rem.
 
 Variables (T : eqType) (x : T).
 
-Fixpoint rem s := if s is y :: t then (if y == x then t else y :: rem t) else s.
+Fixpoint rem s := if s is y :: t then (if y == x return seq T then t else y :: rem t) else s.
 
 Lemma rem_id s : x \notin s -> rem s = s.
 Proof.
@@ -2115,7 +2115,7 @@ End EqPmapSub.
 
 (* Index sequence *)
 
-Fixpoint iota m n := if n is n'.+1 then m :: iota m.+1 n' else [::].
+Fixpoint iota m n := if n is n'.+1 return seq nat then m :: iota m.+1 n' else [::].
 
 Lemma size_iota m n : size (iota m n) = n.
 Proof. by elim: n m => //= n IHn m; rewrite IHn. Qed.
@@ -2335,7 +2335,7 @@ Proof. by move/eqP; elim: i s t => [|i IHi] [|y1 s1] [|y2 t] //= /IHi->. Qed.
 
 Lemma nth_zip_cond p s t i :
    nth p (zip s t) i
-     = (if i < size (zip s t) then (nth p.1 s i, nth p.2 t i) else p).
+     = (if i < size (zip s t) return (S * T) then (nth p.1 s i, nth p.2 t i) else p).
 Proof.
 rewrite size_zip ltnNge geq_min.
 by elim: s t i => [|x s IHs] [|y t] [|i] //=; rewrite ?orbT -?IHs.
@@ -2365,7 +2365,7 @@ Implicit Types (s : seq T) (ss : seq (seq T)).
 Definition flatten := foldr cat (Nil T).
 Definition shape := map (@size T).
 Fixpoint reshape sh s :=
-  if sh is n :: sh' then take n s :: reshape sh' (drop n s) else [::].
+  if sh is n :: sh' return seq (seq T) then take n s :: reshape sh' (drop n s) else [::].
 
 Lemma size_flatten ss : size (flatten ss) = sumn (shape ss).
 Proof. by elim: ss => //= s ss <-; rewrite size_cat. Qed.

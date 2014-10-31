@@ -74,7 +74,7 @@ Proof.
 by move/eq_map=> eq_t; apply: val_inj; rewrite /= -!map_tnth_enum eq_t.
 Qed.
 
-Definition tuple t mkT : tuple_of :=
+Definition tuple t (mkT : _ -> tuple_of) : tuple_of :=
   mkT (let: Tuple _ tP := t return size t == n in tP).
 
 Lemma tupleE t : tuple (fun sP => @Tuple t sP) = t.

@@ -186,7 +186,7 @@ Implicit Type to : action D rT.
 Implicit Type A : {set aT}.
 Implicit Type S : {set rT}.
 
-Definition actm to a := if a \in D then to^~ a else id.
+Definition actm to a := if a \in D return Finite.sort rT -> Finite.sort rT then to^~ a else id.
 
 Definition setact to S a := [set to x a | x in S].
 
@@ -1177,7 +1177,7 @@ Definition actby_cond (A : {set aT}) R (to : action D rT) : Prop :=
   [acts A, on R | to].
 
 Definition actby A R to of actby_cond A R to :=
-  fun x a => if (x \in R) && (a \in A) then to x a else x.
+  fun x a => if (x \in R) && (a \in A) return Finite.sort rT then to x a else x.
 
 Variables (A : {group aT}) (R : {set rT}) (to : action D rT).
 Hypothesis nRA : actby_cond A R to.
@@ -1252,7 +1252,7 @@ Definition subact u a :=
   if insub a is Some Na then Sub _ (sub_act_proof u Na) else u.
 
 Lemma val_subact u a :
-  val (subact u a) = if a \in subact_dom then to (val u) a else val u.
+  val (subact u a) = if a \in subact_dom return Finite.sort rT then to (val u) a else val u.
 Proof.
 by rewrite /subact -if_neg; case: insubP => [Na|] -> //=; rewrite SubK => ->.
 Qed.
@@ -1284,7 +1284,7 @@ have [Da _] := setIP sDa; rewrite !inE Da.
 apply/subsetP/subsetP=> [nSa _ /imsetP[x Sx ->] | nSa x Sx]; rewrite !inE.
   by have:= nSa x Sx; rewrite inE => /(mem_imset val); rewrite val_subact sDa.
 have:= nSa _ (mem_imset val Sx); rewrite inE => /imsetP[y Sy def_y].
-by rewrite ((_ a =P y) _) // -val_eqE val_subact sDa def_y.
+by rewrite ((subaction _ _ =P y) _) // -val_eqE val_subact sDa def_y.
 Qed.
 
 Lemma afix_subact A :
@@ -1332,14 +1332,14 @@ Qed.
 Lemma qactEcond x a :
     x \in 'N(H) ->
   quotient_action (coset H x) a =
-     (if a \in qact_dom then coset H (to x a) else coset H x).
+     (if a \in qact_dom return coset_of H then coset H (to x a) else coset H x).
 Proof.
 move=> Nx; apply: val_inj; rewrite val_subact //= qact_subdomE.
 have: H :* x \in rcosets H 'N(H) by rewrite -rcosetE mem_imset.
 case nNa: (a \in _); rewrite // -(astabs_act _ nNa).
 rewrite !val_coset ?(acts_act acts_qact_dom nNa) //=.
 case/rcosetsP=> y Ny defHy; rewrite defHy; apply: rcoset_transl.
-by rewrite rcoset_sym -defHy (mem_imset (_^~_)) ?rcoset_refl.
+by rewrite rcoset_sym -defHy (mem_imset (to^~a)) ?rcoset_refl. 
 Qed.
 
 Lemma qactE x a :
@@ -1386,10 +1386,10 @@ Local Notation range := 'Fix_to(D :&: H).
 Let acts_dom : {acts dom, on range | to} := acts_act (acts_subnorm_fix to H).
 
 Definition modact x (Ha : coset_of H) :=
-  if x \in range then to x (repr (D :&: Ha)) else x.
+  if x \in range return Finite.sort rT then to x (repr (D :&: Ha)) else x.
 
 Lemma modactEcond x a :
-  a \in dom -> modact x (coset H a) = (if x \in range then to x a else x).
+  a \in dom -> modact x (coset H a) = (if x \in range return Finite.sort rT then to x a else x).
 Proof.
 case/setIP=> Da Na; case: ifP => Cx; rewrite /modact Cx //.
 rewrite val_coset // -group_modr ?sub1set //.
@@ -1814,8 +1814,8 @@ Definition is_groupAction (to : actT) :=
 Structure groupAction := GroupAction {gact :> actT; _ : is_groupAction gact}.
 
 Definition clone_groupAction to :=
-  let: GroupAction _ toA := to return {type of GroupAction for to} -> _ in
-  fun k => k toA : groupAction.
+  let: GroupAction _ toA := to return {type of GroupAction for to} -> groupAction in
+  fun k => k toA.
 
 End GroupAction.
 
@@ -2586,7 +2586,7 @@ Lemma dom_qactJ H : qact_dom 'J H = 'N(H).
 Proof. by rewrite qact_domE ?subsetT ?astabsJ. Qed.
 
 Lemma qactJ H (Hy : coset_of H) x :
-  'Q%act Hy x = if x \in 'N(H) then Hy ^ coset H x else Hy.
+  'Q%act Hy x = if x \in 'N(H) return FinGroup.sort (coset_groupType H) then Hy ^ coset H x else Hy.
 Proof.
 case: (cosetP Hy) => y Ny ->{Hy}.
 by rewrite qactEcond // dom_qactJ; case Nx: (x \in 'N(H)); rewrite ?morphJ.

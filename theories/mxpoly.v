@@ -145,7 +145,7 @@ pose S := Sylvester_mx p q; pose dS := (dq + dp)%N.
 have dS_gt0: dS > 0 by rewrite /dS /dq -(subnKC q_nc).
 pose j0 := Ordinal dS_gt0. 
 pose Ss0 := col_mx (p *: \col_(i < dq) 'X^i) (q *: \col_(i < dp) 'X^i).
-pose Ss := \matrix_(i, j) (if j == j0 then Ss0 i 0 else (S i j)%:P).
+pose Ss := \matrix_(i, j) (if j == j0 return GRing.Zmodule.sort (poly_ringType R) then Ss0 i 0 else (S i j)%:P).
 pose u ds s := \sum_(i < ds) cofactor Ss (s i) j0 * 'X^i.
 exists (u _ (lshift dp), u _ ((rshift dq) _)).
   suffices sz_u ds s: ds > 1 -> size (u ds.-1 s) < ds by rewrite !sz_u.
@@ -160,11 +160,11 @@ transitivity (\det Ss); last first.
   rewrite (expand_det_col Ss j0) big_split_ord !big_distrl /=.
   by congr (_ + _); apply: eq_bigr => i _;
     rewrite mxE eqxx (col_mxEu, col_mxEd) !mxE mulrC mulrA mulrAC.
-pose S_ j1 := map_mx polyC (\matrix_(i, j) S i (if j == j0 then j1 else j)).
+pose S_ j1 := map_mx polyC (\matrix_(i, j) S i (if j == j0 return Finite.sort (ordinal_finType dS) then j1 else j)).
 pose Ss0_ i dj := \poly_(j < dj) S i (insubd j0 j).
-pose Ss_ dj := \matrix_(i, j) (if j == j0 then Ss0_ i dj else (S i j)%:P).
+pose Ss_ dj := \matrix_(i, j) (if j == j0 return {poly R} then Ss0_ i dj else (S i j)%:P).
 have{Ss u} ->: Ss = Ss_ dS.
-  apply/matrixP=> i j; rewrite mxE [in X in _ = X]mxE; case: (j == j0) => {j}//.
+  apply/matrixP=> i j; rewrite mxE. Unset Use Munify. rewrite [in X in _ = X]mxE. Set Use Munify. case: (j == j0) => {j}//.
   apply/polyP=> k; rewrite coef_poly Sylvester_mxE mxE.
   have [k_ge_dS | k_lt_dS] := leqP dS k.
     case: (split i) => {i}i; rewrite !mxE coefMXn;
@@ -190,7 +190,7 @@ rewrite -det_tr => /determinant_multilinear->;
 have [dj0 | dj_gt0] := posnP dj; rewrite ?dj0 !mul1r.
   rewrite !det_tr det_map_mx addrC (expand_det_col _ j0) big1 => [|i _].
     rewrite add0r; congr (\det _)%:P.
-    apply/matrixP=> i j; rewrite [in X in _ = X]mxE; case: eqP => // ->.
+    apply/matrixP=> i j. Unset Use Munify. rewrite [in X in _ = X]mxE. Set Use Munify. case: eqP => // ->.
     by congr (S i _); apply: val_inj.
   by rewrite mxE /= [Ss0_ _ _]poly_def big_ord0 mul0r.
 have /determinant_alternate->: j1 != j0 by rewrite -val_eqE -lt0n.
@@ -265,7 +265,9 @@ Local Notation n := n'.+1.
 Variable A : 'M[R]_n.
 Implicit Types p q : {poly R}.
 
+Unset Use Munify. (* it's eta expanding because it has a problem like c ?x[y] y = d y *)
 Definition horner_mx := horner_morph (fun a => scalar_mx_comm a A).
+Set Use Munify.
 Canonical horner_mx_additive := [additive of horner_mx].
 Canonical horner_mx_rmorphism := [rmorphism of horner_mx].
 
@@ -382,7 +384,7 @@ pose Msize (A : M_RX) := \max_i \max_j size (A i j).
 pose phi (A : M_RX) := \poly_(k < Msize A) \matrix_(i, j) (A i j)`_k.
 have coef_phi A i j k: (phi A)`_k i j = (A i j)`_k.
   rewrite coef_poly; case: (ltnP k _) => le_m_k; rewrite mxE // nth_default //.
-  apply: leq_trans (leq_trans (leq_bigmax i) le_m_k); exact: (leq_bigmax j).
+  apply: leq_trans (leq_trans (leq_bigmax i) le_m_k). Unset Use Munify. exact: (leq_bigmax j). Set Use Munify.
 have phi_is_rmorphism : rmorphism phi.
   do 2?[split=> [A B|]]; apply/polyP=> k; apply/matrixP=> i j; last 1 first.
   - rewrite coef_phi mxE coefMn !coefC.
@@ -424,7 +426,7 @@ transitivity (\det (a%:M - A) == 0).
   by apply/eqP; rewrite -mul_mx_scalar eq_sym -subr_eq0 -mulmxBr Av_av.
 congr (_ == 0); rewrite horner_sum; apply: eq_bigr => s _.
 rewrite hornerM horner_exp !hornerE; congr (_ * _).
-rewrite (big_morph _ (fun p q => hornerM p q a) (hornerC 1 a)).
+Unset Use Munify. rewrite (big_morph _ (fun p q => hornerM p q a) (hornerC 1 a)). Set Use Munify.
 by apply: eq_bigr => i _; rewrite !mxE !(hornerE, hornerMn).
 Qed.
 
@@ -718,7 +720,8 @@ pose memM E n (X : 'rV_n) y := exists a, rVin E n a /\ y = (a *m X^T) 0 0.
 pose finM E S := exists n, exists X, forall y, memM E n X y <-> S y.
 have tensorM E n1 n2 X Y: finM E (memM (memM E n2 Y) n1 X).
   exists (n1 * n2)%N, (mxvec (X^T *m Y)) => y.
-  split=> [[a [Ea Dy]] | [a1 [/fin_all_exists[a /all_and2[Ea Da1]] ->]]].
+  Unset Use Munify. Set Munify Debug.
+  split=> [[a [Ea Dy]] | [a1 [/fin_all_exists[a /all_and2[Ea Da1]] ->]]]. Set Use Munify.
     exists (Y *m (vec_mx a)^T); split=> [i|].
       exists (row i (vec_mx a)); split=> [j|]; first by rewrite !mxE; apply: Ea.
       by rewrite -row_mul -{1}[Y]trmxK -trmx_mul !mxE.
@@ -733,7 +736,7 @@ suffices [m [X [[u [_ Du]] idealM]]]: exists m,
 - do [set M := memM _ m X; move: q.[w] => z] in idealM *.
   have MX i: M (X 0 i).
     by exists (delta_mx 0 i); split=> [j|]; rewrite -?rowE !mxE.
-  have /fin_all_exists[a /all_and2[Fa Da1]] i := idealM _ (MX i).
+  Set Munify Debug. Unset Use Munify. have /fin_all_exists[a /all_and2[Fa Da1]] i := idealM _ (MX i).
   have /fin_all_exists[r Dr] i := fin_all_exists (Fa i).
   pose A := \matrix_(i, j) r j i; pose B := z%:M - map_mx RtoK A.
   have XB0: X *m B = 0.

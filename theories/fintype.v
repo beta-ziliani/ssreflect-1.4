@@ -907,7 +907,7 @@ Section Extrema.
 
 Variables (I : finType) (i0 : I) (P : pred I) (F : I -> nat).
 
-Let arg_pred ord := [pred i | P i & [forall (j | P j), ord (F i) (F j)]].
+Let arg_pred (ord : nat -> nat -> _) := [pred i | P i & [forall (j | P j), ord (F i) (F j)]].
 
 Definition arg_min := odflt i0 (pick (arg_pred leq)).
 

@@ -542,16 +542,16 @@ Proof. by rewrite !ltnNge leq_subLR. Qed.
 
 (* Eliminating the idiom for structurally decreasing compare and subtract. *)
 Lemma subn_if_gt T m n F (E : T) :
-  (if m.+1 - n is m'.+1 then F m' else E) = (if n <= m then F (m - n) else E).
+  (if m.+1 - n is m'.+1 then F m' else E) = (if n <= m return T then F (m - n) else E).
 Proof.
 by case: leqP => [le_nm | /eqnP-> //]; rewrite -{1}(subnK le_nm) -addSn addnK.
 Qed.
 
 (* Max and min. *)
 
-Definition maxn m n := if m < n then n else m.
+Definition maxn m n := if m < n return nat then n else m.
 
-Definition minn m n := if m < n then m else n.
+Definition minn m n := if m < n return nat then m else n.
 
 Lemma max0n : left_id 0 maxn.  Proof. by case. Qed.
 Lemma maxn0 : right_id 0 maxn. Proof. by []. Qed.
@@ -688,7 +688,9 @@ Lemma maxn_minl : left_distributive maxn minn.
 Proof.
 move=> m1 m2 n; wlog le_m21: m1 m2 / m2 <= m1.
   move=> IH; case/orP: (leq_total m2 m1) => /IH //.
+  Unset Use Munify.
   by rewrite minnC [in R in _ = R]minnC.
+  Set Use Munify.
 rewrite (minn_idPr le_m21); apply/esym/minn_idPr.
 by rewrite geq_max leq_maxr leq_max le_m21.
 Qed.
@@ -776,10 +778,10 @@ Variable T : Type.
 Implicit Types m n : nat.
 Implicit Types x y : T.
 
-Definition iter n f x :=
+Definition iter n (f : _ -> T) x :=
   let fix loop m := if m is i.+1 then f (loop i) else x in loop n.
 
-Definition iteri n f x :=
+Definition iteri n (f : _ -> _ -> T) x :=
   let fix loop m := if m is i.+1 then f i (loop i) else x in loop n.
 
 Definition iterop n op x :=
@@ -1084,7 +1086,7 @@ Proof. by elim: n => //= n IHn; rewrite muln_gt0. Qed.
 
 (* Parity and bits. *)
 
-Coercion nat_of_bool (b : bool) := if b then 1 else 0.
+Coercion nat_of_bool (b : bool) := if b return nat then 1 else 0.
 
 Lemma leq_b1 (b : bool) : b <= 1. Proof. by case: b. Qed.
 

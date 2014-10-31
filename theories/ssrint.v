@@ -86,8 +86,8 @@ Definition addz (m n : int) :=
   match m, n with
     | Posz m', Posz n' => Posz (m' + n')
     | Negz m', Negz n' => Negz (m' + n').+1
-    | Posz m', Negz n' => if n' < m' then Posz (m' - n'.+1) else Negz (n' - m')
-    | Negz n', Posz m' => if n' < m' then Posz (m' - n'.+1) else Negz (n' - m')
+    | Posz m', Negz n' => if n' < m' return int then Posz (m' - n'.+1) else Negz (n' - m')
+    | Negz n', Posz m' => if n' < m' return int then Posz (m' - n'.+1) else Negz (n' - m')
   end.
 
 Definition oppz m := nosimpl
@@ -283,9 +283,9 @@ Qed.
 Lemma mulz_addl : left_distributive mulz (+%R).
 Proof.
 move=> x y z; elim: z=> [|n|n]; first by rewrite !(mul0z,mulzC).
-  by rewrite !mulzS=> ->; rewrite !addrA [X in X + _]addrAC.
+  rewrite !mulzS=> ->; rewrite !addrA. Unset Use Munify. by rewrite [X in X + _]addrAC. Set Use Munify.
 rewrite !mulzN !mulzS -!opprD=> /(inv_inj (@opprK _))->.
-by rewrite !addrA [X in X + _]addrAC.
+rewrite !addrA. Unset Use Munify. by rewrite [X in X + _]addrAC. Set Use Munify.
 Qed.
 
 Lemma nonzero1z : 1%Z != 0. Proof. by []. Qed.
@@ -419,11 +419,11 @@ Fact ltz_def x y : (ltz x y) = (y != x) && (lez x y).
 Proof.
 by move: x y=> [] x [] y //=; rewrite (ltn_neqAle, leq_eqVlt) // eq_sym.
 Qed.
-
+Unset Use Munify. (* it's postponing *)
 Definition Mixin :=
    NumMixin lez_norm_add ltz_add eq0_normz (in2W lez_total) normzM
             lez_def ltz_def.
-
+Set Use Munify.
 End intOrdered.
 End intOrdered.
 
@@ -1357,7 +1357,7 @@ Implicit Types x y z : R.
 Implicit Types m n p : int.
 Local Coercion Posz : nat >-> int.
 
-Definition sgz x : int := if x == 0 then 0 else if x < 0 then -1 else 1.
+Definition sgz x : int := if x == 0 return int then 0 else if x < 0 return int  then -1 else 1.
 
 Lemma sgz_def x : sgz x = (-1) ^+ (x < 0)%R *+ (x != 0).
 Proof. by rewrite /sgz; case: (_ == _); case: (_ < _). Qed.
@@ -1623,7 +1623,7 @@ Lemma distSn n : `|n.+1 - n| = 1.
 Proof. exact: distnDr n 1 0. Qed.
 
 Lemma distn_eq1 n1 n2 :
-  (`|n1 - n2| == 1) = (if n1 < n2 then n1.+1 == n2 else n1 == n2.+1).
+  (`|n1 - n2| == 1) = (if n1 < n2 return bool then n1.+1 == n2 else n1 == n2.+1).
 Proof.
 case: ltnP => [lt_n12 | le_n21].
   by rewrite eq_sym -(eqn_add2r n1) distnEr ?subnK // ltnW.

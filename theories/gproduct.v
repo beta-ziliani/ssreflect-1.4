@@ -63,17 +63,17 @@ Variables gT : finGroupType.
 Implicit Types A B C : {set gT}.
 
 Definition partial_product A B :=
-  if A == 1 then B else if B == 1 then A else
-  if [&& group_set A, group_set B & B \subset 'N(A)] then A * B else set0.
+  if A == 1 return {set gT} then B else if B == 1 return {set gT} then A else
+  if [&& group_set A, group_set B & B \subset 'N(A)] return FinGroup.sort (group_set_of_baseGroupType gT) then A * B else set0.
 
 Definition semidirect_product A B :=
-  if A :&: B \subset 1%G then partial_product A B else set0.
+  if A :&: B \subset 1%G return {set gT} then partial_product A B else set0.
 
 Definition central_product A B :=
-  if B \subset 'C(A) then partial_product A B else set0.
+  if B \subset 'C(A) return {set gT} then partial_product A B else set0.
 
 Definition direct_product A B :=
-  if A :&: B \subset 1%G then central_product A B else set0.
+  if A :&: B \subset 1%G return {set gT} then central_product A B else set0.
 
 Definition complements_to_in A B :=
   [set K : {group gT} | A :&: K == 1 & A * K == B].
@@ -534,7 +534,7 @@ Qed.
 
 Lemma cprod_ntriv A B : A != 1 -> B != 1 ->
   A \* B =
-    if [&& group_set A, group_set B & B \subset 'C(A)] then A * B else set0.
+    if [&& group_set A, group_set B & B \subset 'C(A)] return FinGroup.sort (group_set_of_baseGroupType gT) then A * B else set0.
 Proof.
 move=> A1 B1; rewrite /cprod; case: ifP => cAB; rewrite ?cAB ?andbF //=.
 by rewrite /pprod -if_neg A1 -if_neg B1 cents_norm.

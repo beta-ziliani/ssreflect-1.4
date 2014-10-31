@@ -71,9 +71,9 @@ Proof. by move:x P => [[a b] P'] P; apply: val_inj. Qed.
 
 Fact fracq_subproof : forall x : int * int,
   let n :=
-    if x.2 == 0 then 0 else
+    if x.2 == 0 return int then 0 else
     (-1) ^ ((x.2 < 0) (+) (x.1 < 0)) * (`|x.1| %/ gcdn `|x.1| `|x.2|)%:Z in
-  let d := if x.2 == 0 then 1 else (`|x.2| %/ gcdn `|x.1| `|x.2|)%:Z in
+  let d := if x.2 == 0 return int then 1 else (`|x.2| %/ gcdn `|x.1| `|x.2|)%:Z in
   (0 < d) && (coprime `|n| `|d|).
 Proof.
 move=> [m n] /=; case: (altP (n =P 0))=> [//|n0].
@@ -172,7 +172,7 @@ Lemma rat_eq x y : (x == y) = (numq x * denq y == numq y * denq x).
 Proof.
 symmetry; rewrite rat_eqE andbC.
 have [->|] /= := altP (denq _ =P _); first by rewrite (inj_eq (mulIf _)).
-apply: contraNF => /eqP hxy; rewrite -absz_denq -[X in _ == X]absz_denq.
+apply: contraNF => /eqP hxy; rewrite -absz_denq. Unset Use Munify. rewrite -[X in _ == X]absz_denq. Set Use Munify.
 rewrite eqz_nat /= eqn_dvd.
 rewrite -(@Gauss_dvdr _ `|numq x|) 1?coprime_sym ?coprime_num_den // andbC.
 rewrite -(@Gauss_dvdr _ `|numq y|) 1?coprime_sym ?coprime_num_den //.
@@ -183,7 +183,7 @@ Fact fracq_eq x y : x.2 != 0 -> y.2 != 0 ->
   (fracq x == fracq y) = (x.1 * y.2 == y.1 * x.2).
 Proof.
 case: fracqP=> //= u fx u_neq0 _; case: fracqP=> //= v fy v_neq0 _; symmetry.
-rewrite [X in (_ == X)]mulrC mulrACA [X in (_ == X)]mulrACA.
+Unset Use Munify. rewrite [X in (_ == X)]mulrC mulrACA [X in (_ == X)]mulrACA. Set Use Munify.
 by rewrite [denq _ * _]mulrC (inj_eq (mulfI _)) ?mulf_neq0 // rat_eq.
 Qed.
 
@@ -452,7 +452,7 @@ by rewrite (mul0r, mul1r, mulN1r) //= ?[_ ^ _]signrN ?mulNr mulz_sign_abs.
 Qed.
 
 Lemma coprimeq_den n d :
-  coprime `|n| `|d| -> denq (n%:~R / d%:~R) = (if d == 0 then 1 else `|d|).
+  coprime `|n| `|d| -> denq (n%:~R / d%:~R) = (if d == 0 return int then 1 else `|d|).
 Proof.
 move=> cnd; have <- := fracqE (n, d).
 by rewrite /denq /= (eqP (cnd : _ == 1%N)) divn1; case: d {cnd}.

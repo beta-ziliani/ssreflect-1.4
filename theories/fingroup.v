@@ -650,7 +650,7 @@ Section Repr.
 Variable gT : baseFinGroupType.
 Implicit Type A : {set gT}.
 
-Definition repr A := if 1 \in A then 1 else odflt 1 [pick x in A].
+Definition repr A := if 1 \in A return FinGroup.sort gT then 1 else odflt 1 [pick x in A].
 
 Lemma mem_repr A x : x \in A -> repr A \in A.
 Proof.

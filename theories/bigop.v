@@ -527,8 +527,8 @@ Print Canonical Projections.
 Delimit Scope big_scope with BIG.
 Open Scope big_scope.
 
-Definition reducebig R I idx op r (P : pred I) (F : I -> R) : R :=
-  foldr (fun i x => if P i then op (F i) x else x) idx r.
+Definition reducebig R I idx (op : _ -> R -> _) r (P : pred I) (F : I -> R) : R :=
+  foldr (fun i x => if P i return R then op (F i) x else x) idx r.
 
 Module Type BigOpSig.
 Parameter bigop : forall R I,
@@ -849,7 +849,7 @@ Proof. by rewrite unlock. Qed.
 
 Lemma big_cons i r (P : pred I) F :
     let x := \big[op/idx]_(j <- r | P j) F j in
-  \big[op/idx]_(j <- i :: r | P j) F j = if P i then op (F i) x else x.
+  \big[op/idx]_(j <- i :: r | P j) F j = if P i return R then op (F i) x else x.
 Proof. by rewrite unlock. Qed.
 
 Lemma big_map J (h : J -> I) r (P : pred I) F :
@@ -953,7 +953,7 @@ Proof. by move=> ge_m_n; rewrite /index_iota (eqnP ge_m_n) big_nil. Qed.
 
 Lemma big_ltn_cond m n (P : pred nat) F :
     m < n -> let x := \big[op/idx]_(m.+1 <= i < n | P i) F i in
-  \big[op/idx]_(m <= i < n | P i) F i = if P m then op (F m) x else x.
+  \big[op/idx]_(m <= i < n | P i) F i = if P m return R then op (F m) x else x.
 Proof.
 by case: n => [//|n] le_m_n; rewrite /index_iota subSn // big_cons.
 Qed.
@@ -1069,7 +1069,7 @@ Lemma big_ord_recl n F :
      op (F ord0) (\big[op/idx]_(i < n) F (@lift n.+1 ord0 i)).
 Proof.
 pose G i := F (inord i); have eqFG i: F i = G i by rewrite /G inord_val.
-rewrite (eq_bigr _ (fun i _ => eqFG i)) -(big_mkord _ (fun _ => _) G) eqFG.
+rewrite (eq_bigr _ (fun i _ => eqFG i)). Unset Use Munify. rewrite -(big_mkord _ (fun _ => _) G). Set Use Munify. rewrite eqFG.
 rewrite big_ltn // big_add1 /= big_mkord; congr op.
 by apply: eq_bigr => i _; rewrite eqFG.
 Qed.
@@ -1139,17 +1139,17 @@ Proof. by rewrite unlock /= mulm1. Qed.
 
 Lemma big_mkcond I r (P : pred I) F :
   \big[*%M/1]_(i <- r | P i) F i =
-     \big[*%M/1]_(i <- r) (if P i then F i else 1).
+     \big[*%M/1]_(i <- r) (if P i return R then F i else 1).
 Proof. by rewrite unlock; elim: r => //= i r ->; case P; rewrite ?mul1m. Qed.
 
 Lemma big_mkcondr I r (P Q : pred I) F :
   \big[*%M/1]_(i <- r | P i && Q i) F i =
-     \big[*%M/1]_(i <- r | P i) (if Q i then F i else 1).
+     \big[*%M/1]_(i <- r | P i) (if Q i return R then F i else 1).
 Proof. by rewrite -big_filter_cond big_mkcond big_filter. Qed.
 
 Lemma big_mkcondl I r (P Q : pred I) F :
   \big[*%M/1]_(i <- r | P i && Q i) F i =
-     \big[*%M/1]_(i <- r | Q i) (if P i then F i else 1).
+     \big[*%M/1]_(i <- r | Q i) (if P i return R then F i else 1).
 Proof. by rewrite big_andbC big_mkcondr. Qed.
 
 Lemma big_cat I r1 r2 (P : pred I) F :
@@ -1254,7 +1254,7 @@ Qed.
 Lemma big_rem (I : eqType) r x (P : pred I) F :
     x \in r ->
   \big[*%M/1]_(y <- r | P y) F y
-    = (if P x then F x else 1) * \big[*%M/1]_(y <- rem x r | P y) F y.
+    = (if P x return R then F x else 1) * \big[*%M/1]_(y <- rem x r | P y) F y.
 Proof.
 by move/perm_to_rem/(eq_big_perm _)->; rewrite !(big_mkcond _ _ P) big_cons.
 Qed.
@@ -1437,7 +1437,7 @@ move=> PQxQ; rewrite (eq_bigr _ _ _ (fun _ _ => big_seq_cond _ _ _ _ _)).
 rewrite big_seq_cond /= (exchange_big_dep xQ) => [|i j]; last first.
   by rewrite !mem_index_iota => /andP[mn_i Pi] /andP[mn_j /PQxQ->].
 rewrite 2!(big_seq_cond _ _ _ xQ); apply: eq_bigr => j /andP[-> _] /=.
-by rewrite [rhs in _ = rhs]big_seq_cond; apply: eq_bigl => i; rewrite -andbA.
+Unset Use Munify. rewrite [rhs in _ = rhs]big_seq_cond. Set Use Munify. by apply: eq_bigl => i; rewrite -andbA.
 Qed.
 Implicit Arguments exchange_big_dep_nat [m1 n1 m2 n2 P Q F].
 
@@ -1550,7 +1550,7 @@ elim: {P}r => /= [_ | i r IHr].
 case/andP=> /negbTE nri; rewrite big_cons big_distrl => {IHr}/IHr <-.
 rewrite (partition_big (fun f : fIJ => f i) (Q i)) => [|f]; last first.
   by move/familyP/(_ i); rewrite /= inE /= eqxx.
-pose seti j (f : fIJ) := [ffun k => if k == i then j else f k].
+pose seti j (f : fIJ) := [ffun k => if k == i return Finite.sort J then j else f k].
 apply: eq_bigr => j Qij.
 rewrite (reindex_onto (seti j) (seti j0)) => [|f /andP[_ /eqP fi]]; last first.
   by apply/ffunP=> k; rewrite !ffunE; case: eqP => // ->.

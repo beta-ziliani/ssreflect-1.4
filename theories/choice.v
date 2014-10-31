@@ -142,9 +142,8 @@ Variable T : Type.
 
 Unset Elimination Schemes.
 Inductive tree := Leaf of T | Node of nat & seq tree.
-
-Definition tree_rect K IH_leaf IH_node :=
-  fix loop t : K t := match t with
+Definition tree_rect K (IH_leaf : forall x, K (Leaf x)) (IH_node : forall x y, _ -> K (Node x y)) :=
+  fix loop t : K t := match t as x return K x with
   | Leaf x => IH_leaf x
   | Node n f0 =>
     let fix iter_pair f : foldr (fun t => prod (K t)) unit f :=
@@ -152,7 +151,7 @@ Definition tree_rect K IH_leaf IH_node :=
     IH_node n f0 (iter_pair f0)
   end.
 Definition tree_rec (K : tree -> Set) := @tree_rect K.
-Definition tree_ind K IH_leaf IH_node :=
+Definition tree_ind (K : _ -> Prop) (IH_leaf : forall x, K (Leaf x)) (IH_node : forall x y, _ -> K (Node x y)) :=
   fix loop t : K t : Prop := match t with
   | Leaf x => IH_leaf x
   | Node n f0 =>
@@ -404,10 +403,10 @@ End SubChoice.
 
 Fact seq_choiceMixin : choiceMixin (seq T).
 Proof.
-pose r f := [fun xs => fun x : T => f (x :: xs) : option (seq T)].
+pose r (f : seq T -> option (seq T)) := [fun xs => fun x : T => f (x :: xs) : option (seq T)].
 pose fix f sP ns xs {struct ns} :=
   if ns is n :: ns1 then let fr := r (f sP ns1) xs in obind fr (find fr n)
-  else if sP xs then Some xs else None.
+  else if sP xs return option (seq T) then Some xs else None.
 exists (fun sP nn => f sP (dc nn) nil) => [sP n ys | sP [ys] | sP sQ eqPQ n].
 - elim: {n}(dc n) nil => [|n ns IHs] xs /=; first by case: ifP => // sPxs [<-].
   by case: (find _ n) => //= [x]; apply: IHs.
@@ -455,7 +454,7 @@ End TagChoice.
 
 Fact nat_choiceMixin : choiceMixin nat.
 Proof.
-pose f := [fun (P : pred nat) n => if P n then Some n else None].
+pose f := [fun (P : pred nat) n => if P n return option nat then Some n else None].
 exists f => [P n m | P [n Pn] | P Q eqPQ n] /=; last by rewrite eqPQ.
   by case: ifP => // Pn [<-].
 by exists n; rewrite Pn.
@@ -563,7 +562,7 @@ Lemma pickleK : @pcancel nat T pickle unpickle.
 Proof. exact: Countable.pickleK. Qed.
 
 Definition pickle_inv n :=
-  obind (fun x : T => if pickle x == n then Some x else None) (unpickle n).
+  obind (fun x : T => if pickle x == n return option T then Some x else None) (unpickle n).
 
 Lemma pickle_invK : ocancel pickle_inv pickle.
 Proof.

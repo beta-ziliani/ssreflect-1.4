@@ -171,7 +171,7 @@ Proof. by rewrite val_insubd /=; case: (c == 0). Qed.
 Lemma size_polyC c : size c%:P = (c != 0).
 Proof. by rewrite polyseqC size_nseq. Qed.
 
-Lemma coefC c i : c%:P`_i = if i == 0%N then c else 0.
+Lemma coefC c i : c%:P`_i = if i == 0%N return GRing.Ring.sort R then c else 0.
 Proof. by rewrite polyseqC; case: i => [|[]]; case: eqP. Qed.
 
 Lemma polyCK : cancel polyC (coefp 0).
@@ -207,14 +207,14 @@ Definition cons_poly c p : {poly R} :=
   else c%:P.
 
 Lemma polyseq_cons c p :
-  cons_poly c p = (if ~~ nilp p then c :: p else c%:P) :> seq R.
+  cons_poly c p = (if ~~ nilp p return seq R then c :: p else c%:P) :> seq R.
 Proof. by case: p => [[]]. Qed.
 
 Lemma size_cons_poly c p :
-  size (cons_poly c p) = (if nilp p && (c == 0) then 0%N else (size p).+1).
+  size (cons_poly c p) = (if nilp p && (c == 0) return nat then 0%N else (size p).+1).
 Proof. by case: p => [[|c' s] _] //=; rewrite size_polyC; case: eqP. Qed.
 
-Lemma coef_cons c p i : (cons_poly c p)`_i = if i == 0%N then c else p`_i.-1.
+Lemma coef_cons c p i : (cons_poly c p)`_i = if i == 0%N return GRing.Ring.sort R then c else p`_i.-1.
 Proof.
 by case: p i => [[|c' s] _] [] //=; rewrite polyseqC; case: eqP => //= _ [].
 Qed.
@@ -250,7 +250,7 @@ Definition poly := locked_with poly_key poly_expanded_def.
 Canonical poly_unlockable := [unlockable fun poly].
 Local Notation "\poly_ ( i < n ) E" := (poly n (fun i : nat => E)).
 
-Lemma polyseq_poly n E :
+Lemma polyseq_poly n (E : nat -> _) :
   E n.-1 != 0 -> \poly_(i < n) E i = mkseq [eta E] n :> seq R.
 Proof.
 rewrite unlock; case: n => [|n] nzEn; first by rewrite polyseqC eqxx.
@@ -260,17 +260,17 @@ Qed.
 Lemma size_poly n E : size (\poly_(i < n) E i) <= n.
 Proof. by rewrite unlock (leq_trans (size_Poly _)) ?size_mkseq. Qed.
 
-Lemma size_poly_eq n E : E n.-1 != 0 -> size (\poly_(i < n) E i) = n.
+Lemma size_poly_eq n (E : nat -> _) : E n.-1 != 0 -> size (\poly_(i < n) E i) = n.
 Proof. by move/polyseq_poly->; apply: size_mkseq. Qed.
 
-Lemma coef_poly n E k : (\poly_(i < n) E i)`_k = (if k < n then E k else 0).
+Lemma coef_poly n E k : (\poly_(i < n) E i)`_k = (if k < n return R then E k else 0).
 Proof.
 rewrite unlock coef_Poly.
 have [lt_kn | le_nk] := ltnP k n; first by rewrite nth_mkseq.
 by rewrite nth_default // size_mkseq.
 Qed.
 
-Lemma lead_coef_poly n E :
+Lemma lead_coef_poly n (E : nat -> _) :
   n > 0 -> E n.-1 != 0 -> lead_coef (\poly_(i < n) E i) = E n.-1.
 Proof.
 by case: n => // n _ nzE; rewrite /lead_coef size_poly_eq // coef_poly leqnn.
@@ -718,14 +718,14 @@ apply/polyP=> i; rewrite coefMr coefM.
 by apply: eq_bigr => j _; rewrite coefX commr_nat.
 Qed.
 
-Lemma coefMX p i : (p * 'X)`_i = (if (i == 0)%N then 0 else p`_i.-1).
+Lemma coefMX p i : (p * 'X)`_i = (if (i == 0)%N return GRing.Zmodule.sort R then 0 else p`_i.-1).
 Proof.
 rewrite coefMr big_ord_recl coefX ?simp.
 case: i => [|i]; rewrite ?big_ord0 //= big_ord_recl polyseqX subn1 /=.
 by rewrite big1 ?simp // => j _; rewrite nth_nil !simp.
 Qed.
 
-Lemma coefXM p i : ('X * p)`_i = (if (i == 0)%N then 0 else p`_i.-1).
+Lemma coefXM p i : ('X * p)`_i = (if (i == 0)%N return R then 0 else p`_i.-1).
 Proof. by rewrite -commr_polyX coefMX. Qed.
 
 Lemma cons_poly_def p a : cons_poly a p = p * 'X + a%:P.
@@ -759,7 +759,7 @@ Lemma polyXsubC_eq0 a : ('X - a%:P == 0) = false.
 Proof. by rewrite -nil_poly polyseqXsubC. Qed.
 
 Lemma size_MXaddC p c :
-  size (p * 'X + c%:P) = (if (p == 0) && (c == 0) then 0%N else (size p).+1).
+  size (p * 'X + c%:P) = (if (p == 0) && (c == 0) return nat then 0%N else (size p).+1).
 Proof. by rewrite -cons_poly_def size_cons_poly nil_poly. Qed.
 
 Lemma polyseqMX p : p != 0 -> p * 'X = 0 :: p :> seq R.
@@ -810,13 +810,13 @@ elim: n => [|n IHn]; first exact: polyseqMX.
 by rewrite exprSr mulrA polyseqMX -?nil_poly IHn.
 Qed.
 
-Lemma coefMXn n p i : (p * 'X^n)`_i = if i < n then 0 else p`_(i - n).
+Lemma coefMXn n p i : (p * 'X^n)`_i = if i < n return R then 0 else p`_(i - n).
 Proof.
 have [-> | /polyseqMXn->] := eqVneq p 0; last exact: nth_ncons.
 by rewrite mul0r !coef0 if_same.
 Qed.
 
-Lemma coefXnM n p i : ('X^n * p)`_i = if i < n then 0 else p`_(i - n).
+Lemma coefXnM n p i : ('X^n * p)`_i = if i < n return R then 0 else p`_(i - n).
 Proof. by rewrite -commr_polyXn coefMXn. Qed.
 
 (* Expansion of a polynomial as an indexed sum *)
@@ -1493,7 +1493,7 @@ Proof. by elim: n => // n IHn a p q; rewrite derivnS IHn linearP. Qed.
 Canonical derivn_additive n :=  Additive (derivn_is_linear n).
 Canonical derivn_linear n :=  Linear (derivn_is_linear n).
 
-Lemma derivnC c n : c%:P^`(n) = if n == 0%N then c%:P else 0.
+Lemma derivnC c n : c%:P^`(n) = if n == 0%N return {poly R} then c%:P else 0.
 Proof. by case: n => // n; rewrite derivSn derivC linear0. Qed.
 
 Lemma derivnD n : {morph derivn n : p q / p + q}.
@@ -1571,7 +1571,7 @@ Proof. by rewrite -[p^`N(0)](nderivn_def 0). Qed.
 Lemma nderivn1 p : p^`N(1) = p^`().
 Proof. by rewrite -[p^`N(1)](nderivn_def 1). Qed.
 
-Lemma nderivnC c n : (c%:P)^`N(n) = if n == 0%N then c%:P else 0.
+Lemma nderivnC c n : (c%:P)^`N(n) = if n == 0%N return {poly R} then c%:P else 0.
 Proof.
 apply/polyP=> i; rewrite coef_nderivn.
 by case: n => [|n]; rewrite ?bin0 // coef0 coefC mul0rn.
@@ -2109,7 +2109,7 @@ Qed.
 Definition poly_unit : pred {poly R} :=
   fun p => (size p == 1%N) && (p`_0 \in GRing.unit).
 
-Definition poly_inv p := if p \in poly_unit then (p`_0)^-1%:P else p.
+Definition poly_inv p := if p \in poly_unit return {poly R} then (p`_0)^-1%:P else p.
 
 Fact poly_mulVp : {in poly_unit, left_inverse 1 poly_inv *%R}.
 Proof.
@@ -2156,7 +2156,7 @@ Lemma poly_unitE p :
   (p \in GRing.unit) = (size p == 1%N) && (p`_0 \in GRing.unit).
 Proof. by []. Qed.
 
-Lemma poly_invE p : p ^-1 = if p \in GRing.unit then (p`_0)^-1%:P else p.
+Lemma poly_invE p : p ^-1 = if p \in GRing.unit return {poly R} then (p`_0)^-1%:P else p.
 Proof. by []. Qed.
 
 Lemma polyC_inv c : c%:P^-1 = (c^-1)%:P.
@@ -2234,7 +2234,7 @@ have [/size1_polyC-> | nc_q] := leqP (size q) 1.
 have nz_q: q != 0 by rewrite -size_poly_eq0 -(subnKC nc_q).
 rewrite mulnC comp_polyE (polySpred nz_p) /= big_ord_recr /= addrC.
 rewrite size_addl size_scale ?lead_coef_eq0 ?size_exp //=.
-rewrite [X in _ < X]polySpred ?expf_neq0 // ltnS size_exp.
+Unset Use Munify. rewrite [X in _ < X]polySpred ?expf_neq0 //. Set Use Munify. rewrite ltnS size_exp.
 rewrite (leq_trans (size_sum _ _ _)) //; apply/bigmax_leqP => i _.
 rewrite (leq_trans (size_scale_leq _ _)) // polySpred ?expf_neq0 //.
 by rewrite size_exp -(subnKC nc_q) ltn_pmul2l.

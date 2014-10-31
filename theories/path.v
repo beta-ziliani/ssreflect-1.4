@@ -192,22 +192,22 @@ Proof. by case/splitP=> p1 p2; rewrite cat_rcons. Qed.
 
 Fixpoint next_at x y0 y p :=
   match p with
-  | [::] => if x == y then y0 else x
-  | y' :: p' => if x == y then y' else next_at x y0 y' p'
+  | [::] => if x == y return T then y0 else x
+  | y' :: p' => if x == y return T then y' else next_at x y0 y' p'
   end.
 
 Definition next p x := if p is y :: p' then next_at x y y p' else x.
 
 Fixpoint prev_at x y0 y p :=
   match p with
-  | [::]     => if x == y0 then y else x
-  | y' :: p' => if x == y' then y else prev_at x y0 y' p'
+  | [::]     => if x == y0 return T then y else x
+  | y' :: p' => if x == y' return T then y else prev_at x y0 y' p'
   end.
 
 Definition prev p x := if p is y :: p' then prev_at x y y p' else x.
 
 Lemma next_nth p x :
-  next p x = if x \in p then
+  next p x = if x \in p return T then
                if p is y :: p' then nth y p' (index x p) else x
              else x.
 Proof.
@@ -217,7 +217,7 @@ elim: p {2 3 5}y0 => [|y' p IHp] y /=; rewrite (eq_sym y) inE;
 Qed.
 
 Lemma prev_nth p x :
-  prev p x = if x \in p then
+  prev p x = if x \in p return T then
                if p is y :: p' then nth y p (index x p') else x
              else x.
 Proof.
@@ -315,7 +315,7 @@ Lemma mem2_splice1 p1 p3 x y z :
 Proof. exact: (mem2_splice [::z]). Qed.
 
 Lemma mem2_cons x p y :
-  mem2 (x :: p) y =1 (if x == y then mem (x :: p) : pred T else mem2 p y).
+  mem2 (x :: p) y =1 (if x == y return pred T then mem (x :: p) : pred T else mem2 p y).
 Proof. by move=> z; rewrite {1}/mem2 /=; case (x == y). Qed.
 
 Lemma mem2_last y0 p x : mem2 (y0 :: p) x (last y0 p) = (x \in y0 :: p).
@@ -352,7 +352,7 @@ Qed.
 
 Fixpoint shorten x p :=
   if p is y :: p' then
-    if x \in p then shorten x p' else y :: shorten y p'
+    if x \in p return seq T then shorten x p' else y :: shorten y p'
   else [::].
 
 CoInductive shorten_spec x p : T -> seq T -> Type :=
@@ -460,7 +460,7 @@ Fixpoint merge s1 :=
   if s1 is x1 :: s1' then
     let fix merge_s1 s2 :=
       if s2 is x2 :: s2' then
-        if leT x2 x1 then x2 :: merge_s1 s2' else x1 :: merge s1' s2
+        if leT x2 x1 return seq T then x2 :: merge_s1 s2' else x1 :: merge s1' s2
       else s1 in
     merge_s1
   else id.
@@ -510,7 +510,7 @@ Fixpoint merge_sort_pop s1 ss :=
 
 Fixpoint merge_sort_rec ss s :=
   if s is [:: x1, x2 & s'] then
-    let s1 := if leT x1 x2 then [:: x1; x2] else [:: x2; x1] in
+    let s1 := if leT x1 x2 return seq T then [:: x1; x2] else [:: x2; x1] in
     merge_sort_rec (merge_sort_push s1 ss) s'
   else merge_sort_pop s ss.
 
@@ -600,7 +600,7 @@ Section Trajectory.
 
 Variables (T : Type) (f : T -> T).
 
-Fixpoint traject x n := if n is n'.+1 then x :: traject (f x) n' else [::].
+Fixpoint traject x n := if n is n'.+1 return seq T then x :: traject (f x) n' else [::].
 
 Lemma trajectS x n : traject x n.+1 = x :: traject (f x) n.
 Proof. by []. Qed.

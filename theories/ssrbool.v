@@ -321,7 +321,7 @@ Delimit Scope bool_scope with B.
 Open Scope bool_scope.
 
 (* An alternative to xorb that behaves somewhat better wrt simplification.    *)
-Definition addb b := if b then negb else id.
+Definition addb b : bool -> bool := if b then negb else id.
 
 (* Notation for && and || is declared in Init.Datatypes. *)
 Notation "~~ b" := (negb b) : bool_scope.
@@ -438,26 +438,26 @@ Proof. by case def_b: b; constructor. Qed.
 Lemma ifPn : if_spec (~~ b) b (if b then vT else vF).
 Proof. by case def_b: b; constructor; rewrite ?def_b. Qed.
 
-Lemma ifT : b -> (if b then vT else vF) = vT. Proof. by move->. Qed.
-Lemma ifF : b = false -> (if b then vT else vF) = vF. Proof. by move->. Qed.
-Lemma ifN : ~~ b -> (if b then vT else vF) = vF. Proof. by move/negbTE->. Qed.
+Lemma ifT : b -> (if b return A then vT else vF) = vT. Proof. by move->. Qed.
+Lemma ifF : b = false -> (if b return A then vT else vF) = vF. Proof. by move->. Qed.
+Lemma ifN : ~~ b -> (if b return A then vT else vF) = vF. Proof. by move/negbTE->. Qed.
 
-Lemma if_same : (if b then vT else vT) = vT.
+Lemma if_same : (if b return A then vT else vT) = vT.
 Proof. by case b. Qed.
 
-Lemma if_neg : (if ~~ b then vT else vF) = if b then vF else vT.
+Lemma if_neg : (if ~~ b return A then vT else vF) = if b then vF else vT.
 Proof. by case b. Qed.
 
 Lemma fun_if : f (if b then vT else vF) = if b then f vT else f vF.
 Proof. by case b. Qed.
 
 Lemma if_arg (fT fF : A -> B) :
-  (if b then fT else fF) x = if b then fT x else fF x.
+  (if b return (A -> B) then fT else fF) x = if b then fT x else fF x.
 Proof. by case b. Qed.
 
 (* Turning a boolean "if" form into an application.                           *)
-Definition if_expr := if b then vT else vF.
-Lemma ifE : (if b then vT else vF) = if_expr. Proof. by []. Qed.
+Definition if_expr := if b return A then vT else vF.
+Lemma ifE : (if b return A then vT else vF) = if_expr. Proof. by []. Qed.
 
 End BoolIf.
 
@@ -475,22 +475,22 @@ Variables (P Q : Prop) (b c : bool).
 
 Hypothesis Hb : reflect P b.
 
-Lemma introNTF : (if c then ~ P else P) -> ~~ b = c.
+Lemma introNTF : (if c return Prop then ~ P else P) -> ~~ b = c.
 Proof. by case c; case Hb. Qed.
 
-Lemma introTF : (if c then P else ~ P) -> b = c.
+Lemma introTF : (if c return Prop then P else ~ P) -> b = c.
 Proof. by case c; case Hb. Qed.
 
-Lemma elimNTF : ~~ b = c -> if c then ~ P else P.
+Lemma elimNTF : ~~ b = c -> if c return Prop then ~ P else P.
 Proof. by move <-; case Hb. Qed.
 
-Lemma elimTF : b = c -> if c then P else ~ P.
+Lemma elimTF : b = c -> if c return Prop then P else ~ P.
 Proof. by move <-; case Hb. Qed.
 
-Lemma equivPif : (Q -> P) -> (P -> Q) -> if b then Q else ~ Q.
+Lemma equivPif : (Q -> P) -> (P -> Q) -> if b return Prop then Q else ~ Q.
 Proof. by case Hb; auto. Qed.
 
-Lemma xorPif : Q \/ P -> ~ (Q /\ P) -> if b then ~ Q else Q.
+Lemma xorPif : Q \/ P -> ~ (Q /\ P) -> if b return Prop then ~ Q else Q.
 Proof. by case Hb => [? _ H ? | ? H _]; case: H. Qed.
 
 End ReflectCore.
@@ -501,16 +501,16 @@ Section ReflectNegCore.
 Variables (P Q : Prop) (b c : bool).
 Hypothesis Hb : reflect P (~~ b).
 
-Lemma introTFn : (if c then ~ P else P) -> b = c.
+Lemma introTFn : (if c return Prop then ~ P else P) -> b = c.
 Proof. by move/(introNTF Hb) <-; case b. Qed.
 
-Lemma elimTFn : b = c -> if c then ~ P else P.
+Lemma elimTFn : b = c -> if c return Prop then ~ P else P.
 Proof. by move <-; apply: (elimNTF Hb); case b. Qed.
 
-Lemma equivPifn : (Q -> P) -> (P -> Q) -> if b then ~ Q else Q.
+Lemma equivPifn : (Q -> P) -> (P -> Q) -> if b return Prop then ~ Q else Q.
 Proof. rewrite -if_neg; exact: equivPif. Qed.
 
-Lemma xorPifn : Q \/ P -> ~ (Q /\ P) -> if b then Q else ~ Q.
+Lemma xorPifn : Q \/ P -> ~ (Q /\ P) -> if b return Prop then Q else ~ Q.
 Proof. rewrite -if_neg; exact: xorPif. Qed.
 
 End ReflectNegCore.
@@ -553,7 +553,7 @@ Proof. by move=> Qb; move/introT; case: Qb. Qed.
 Lemma sameP : reflect P c -> b = c.
 Proof. case; [exact: introT | exact: introF]. Qed.
 
-Lemma decPcases : if b then P else ~ P. Proof. by case Pb. Qed.
+Lemma decPcases : if b return Prop then P else ~ P. Proof. by case Pb. Qed.
 
 Definition decP : decidable P. by case: b decPcases; [left | right]. Defined.
 
@@ -1139,7 +1139,7 @@ Notation "{ : T }" := (T%type : predArgType)
 (* nosimpl tag.                                                               *)
 
 Definition mem T (pT : predType T) : pT -> mem_pred T :=
-  nosimpl (let: PredType _ _ (exist mem _) := pT return pT -> _ in mem).
+  nosimpl (let: PredType _ _ (exist mem _) := pT return pT -> mem_pred T in mem).
 Definition in_mem T x mp := nosimpl pred_of_mem T mp x.
 
 Prenex Implicits mem.

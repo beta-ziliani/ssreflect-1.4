@@ -114,16 +114,16 @@ Fixpoint prime_decomp_rec m k a b c e :=
   if a is a'.+1 then
     if b - (ifnz e 1 k - c) is b'.+1 then
       [rec m, k, a', b', ifnz c c.-1 (ifnz e p.-2 1), e] else
-    if (b == 0) && (c == 0) then
+    if (b == 0) && (c == 0) return seq (nat*nat) then
       let b' := k + a' in [rec b'.*2.+3, k, a', b', k.-1, e.+1] else
     let bc' := ifnz e (ifnz b (k, 0) (edivn2 0 c)) (b, c) in
     p ^? e :: ifnz a' [rec m, k.+1, a'.-1, bc'.1 + a', bc'.2, 0] [:: (m, 1)]
-  else if (b == 0) && (c == 0) then [:: (p, e.+2)] else p ^? e :: [:: (m, 1)]
+  else if (b == 0) && (c == 0) return seq (nat*nat) then [:: (p, e.+2)] else p ^? e :: [:: (m, 1)]
 where "[ 'rec' m , k , a , b , c , e ]" := (prime_decomp_rec m k a b c e).
 
 Definition prime_decomp n :=
   let: (e2, m2) := elogn2 0 n.-1 n.-1 in
-  if m2 < 2 then 2 ^? e2 :: 3 ^? m2 :: [::] else
+  if m2 < 2 return seq (nat*nat) then 2 ^? e2 :: 3 ^? m2 :: [::] else
   let: (a, bc) := edivn m2.-2 3 in
   let: (b, c) := edivn (2 - bc) 2 in
   2 ^? e2 :: [rec m2.*2.+1, 1, a, b, c, 0].
@@ -593,10 +593,10 @@ Fixpoint logn_rec d m r :=
   | _, _ => 0
   end.
 
-Definition logn p m := if prime p then logn_rec p m m else 0.
+Definition logn p m := if prime p return nat then logn_rec p m m else 0.
 
 Lemma lognE p m :
-  logn p m = if [&& prime p, 0 < m & p %| m] then (logn p (m %/ p)).+1 else 0.
+  logn p m = if [&& prime p, 0 < m & p %| m] return nat then (logn p (m %/ p)).+1 else 0.
 Proof.
 rewrite /logn /dvdn; case p_pr: (prime p) => //.
 rewrite /divn modn_def; case def_m: {2 3}m => [|m'] //=.
@@ -777,7 +777,7 @@ Qed.
 
 Definition trunc_log p n :=
   let fix loop n k :=
-    if k is k'.+1 then if p <= n then (loop (n %/ p) k').+1 else 0 else 0
+    if k is k'.+1 then if p <= n return nat then (loop (n %/ p) k').+1 else 0 else 0
   in loop n n.
 
 Lemma trunc_log_bounds p n :

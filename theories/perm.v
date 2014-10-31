@@ -550,7 +550,7 @@ congr (_ (+) _); last first.
   case: (prod_tpermP s) => ts ->{s} _.
   elim: ts => [|t ts IHts] /=; first by rewrite big_nil lift_perm1 !odd_perm1.
   rewrite big_cons odd_mul_tperm -(lift_permM _ j) odd_permM {}IHts //.
-  congr (_ (+) _); rewrite (_ : _ j _ = tperm (lift j t.1) (lift j t.2)).
+  congr (_ (+) _); rewrite (_ : lift_perm _ _ _ = tperm (lift j t.1) (lift j t.2)).
     by rewrite odd_tperm (inj_eq (@lift_inj _ _)).
   apply/permP=> k; case: (unliftP j k) => [k'|] ->.
     rewrite lift_perm_lift inj_tperm //; exact: lift_inj.
@@ -562,7 +562,7 @@ elim: {k}(k : nat) {1 3}k (erefl (k : nat)) => [|m IHm] k def_k.
   rewrite (_ : k = ord0) ?lift_perm1 ?odd_perm1 //; exact: val_inj.
 have le_mn: m < n.+1 by [rewrite -def_k ltnW]; pose j := Ordinal le_mn.
 rewrite -(mulg1 1)%g -(lift_permM _ j) odd_permM {}IHm // addbC.
-rewrite (_ : _ k _ = tperm j k); first by rewrite odd_tperm neq_ltn def_k leqnn.
+rewrite (_ : lift_perm _ _ _ = tperm j k); first by rewrite odd_tperm neq_ltn def_k leqnn.
 apply/permP=> i; case: (unliftP j i) => [i'|] ->; last first.
   by rewrite lift_perm_id tpermL.
 apply: ord_inj; rewrite lift_perm_lift !permE /= eq_sym -if_neg neq_lift.

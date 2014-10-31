@@ -3712,7 +3712,7 @@ Variable R : Type.
 
 Fixpoint tsubst (t : term R) (s : nat * term R) :=
   match t with
-  | 'X_i => if i == s.1 then s.2 else t
+  | 'X_i => if i == s.1 return term R then s.2 else t
   | _%:T | _%:R => t
   | t1 + t2 => tsubst t1 s + tsubst t2 s
   | - t1 => - tsubst t1 s
@@ -3731,8 +3731,8 @@ Fixpoint fsubst (f : formula R) (s : nat * term R) :=
   | f1 \/ f2 => fsubst f1 s \/ fsubst f2 s
   | f1 ==> f2 => fsubst f1 s ==> fsubst f2 s
   | ~ f1 => ~ fsubst f1 s
-  | ('exists 'X_i, f1) => 'exists 'X_i, if i == s.1 then f1 else fsubst f1 s
-  | ('forall 'X_i, f1) => 'forall 'X_i, if i == s.1 then f1 else fsubst f1 s
+  | ('exists 'X_i, f1) => 'exists 'X_i, if i == s.1 return formula R then f1 else fsubst f1 s
+  | ('forall 'X_i, f1) => 'forall 'X_i, if i == s.1 return formula R then f1 else fsubst f1 s
   end%T.
 
 End Substitution.
@@ -3964,8 +3964,8 @@ have sub_var_tsubst s t0: s.1 >= ub_var t0 -> tsubst t0 s = t0.
   - by move=> t1 IHt1 t2 IHt2; rewrite geq_max => /andP[/IHt1-> /IHt2->].
   - by move=> t1 IHt1 /IHt1->.
   - by move=> t1 IHt1 n /IHt1->.
-pose fix rsub t' m r : term R :=
-  if r is u :: r' then tsubst (rsub t' m.+1 r') (m, u^-1)%T else t'.
+pose fix rsub t' m (r : seq (term R)) : term R :=
+  if r is u :: r' return term R then tsubst (rsub t' m.+1 r') (m, u^-1)%T else t'.
 pose fix ub_sub m r : Prop :=
   if r is u :: r' then ub_var u <= m /\ ub_sub m.+1 r' else true.
 suffices{t} rsub_to_r t r0 m: m >= ub_var t -> ub_sub m r0 ->
@@ -4079,11 +4079,11 @@ Definition and_dnf bcs1 bcs2 :=
 (* Computes a DNF from a qf ring formula *)
 Fixpoint qf_to_dnf (f : formula R) (neg : bool) {struct f} :=
   match f with
-  | Bool b => if b (+) neg then [:: ([::], [::])] else [::]
-  | t1 == t2 => [:: if neg then ([::], [:: t1 - t2]) else ([:: t1 - t2], [::])]
-  | f1 /\ f2 => (if neg then cat else and_dnf) [rec f1, neg] [rec f2, neg]
-  | f1 \/ f2 => (if neg then and_dnf else cat) [rec f1, neg] [rec f2, neg]
-  | f1 ==> f2 => (if neg then and_dnf else cat) [rec f1, ~~ neg] [rec f2, neg]
+  | Bool b => if b (+) neg return seq (seq (term R) * seq (term R)) then [:: ([::], [::])] else [::]
+  | t1 == t2 => [:: if neg return (seq (term R) * seq (term R)) then ([::], [:: t1 - t2]) else ([:: t1 - t2], [::])]
+  | f1 /\ f2 => (if neg return seq (seq (term R) * seq (term R)) -> seq (seq (term R) * seq (term R)) -> seq (seq (term R) * seq (term R)) then cat else and_dnf) [rec f1, neg] [rec f2, neg]
+  | f1 \/ f2 => (if neg return seq (seq (term R) * seq (term R)) -> seq (seq (term R) * seq (term R)) -> seq (seq (term R) * seq (term R)) then and_dnf else cat) [rec f1, neg] [rec f2, neg]
+  | f1 ==> f2 => (if neg return seq (seq (term R) * seq (term R)) -> seq (seq (term R) * seq (term R)) -> seq (seq (term R) * seq (term R)) then and_dnf else cat) [rec f1, ~~ neg] [rec f2, neg]
   | ~ f1 => [rec f1, ~~ neg]
   | _ =>  if neg then [:: ([::], [::])] else [::]
   end%T where "[ 'rec' f , neg ]" := (qf_to_dnf f neg).
@@ -4183,7 +4183,7 @@ Lemma If_form_rf :
 Proof. by move=> /= -> -> ->. Qed.
 
 Lemma eval_If e :
-  let ev := qf_eval e in ev If = (if ev pred_f then ev then_f else ev else_f).
+  let ev := qf_eval e in ev If = (if ev pred_f return bool then ev then_f else ev else_f).
 Proof. by rewrite /=; case: ifP => _; rewrite ?orbF. Qed. 
 
 End If.
@@ -4194,7 +4194,7 @@ Variables (I : finType) (pred_f then_f : I -> formula R) (else_f : formula R).
 
 Definition Pick :=
   \big[Or/False]_(p : {ffun pred I})
-    ((\big[And/True]_i (if p i then pred_f i else ~ pred_f i))
+    ((\big[And/True]_i (if p i return formula R then pred_f i else ~ pred_f i))
     /\ (if pick p is Some i then then_f i else else_f))%T.
 
 Lemma Pick_form_qf :
@@ -4352,7 +4352,7 @@ Qed.
 
 Lemma prodf_seq_eq0 I r (P : pred I) (F : I -> R) :
   (\prod_(i <- r | P i) F i == 0) = has (fun i => P i && (F i == 0)) r.
-Proof. by rewrite (big_morph _ mulf_eq0 (oner_eq0 _)) big_has_cond. Qed.
+Proof. Unset Use Munify. rewrite (big_morph _ mulf_eq0 (oner_eq0 _)). Set Use Munify. by rewrite big_has_cond. Qed.
 
 Lemma mulf_neq0 x y : x != 0 -> y != 0 -> x * y != 0.
 Proof. move=> x0 y0; rewrite mulf_eq0; exact/norP. Qed.
@@ -6074,7 +6074,7 @@ Variables R1 R2 : unitRingType.
 Definition pair_unitr :=
   [qualify a x : R1 * R2 | (x.1 \is a GRing.unit) && (x.2 \is a GRing.unit)].
 Definition pair_invr x :=
-  if x \is a pair_unitr then (x.1^-1, x.2^-1) else x.
+  if x \is a pair_unitr return (R1 * R2) then (x.1^-1, x.2^-1) else x.
 
 Lemma pair_mulVl : {in pair_unitr, left_inverse 1 pair_invr *%R}.
 Proof.

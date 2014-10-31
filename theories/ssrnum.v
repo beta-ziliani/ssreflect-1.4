@@ -201,9 +201,9 @@ Local Notation "x < y" := (ltr x y) : ring_scope.
 Definition ger : simpl_rel R := [rel x y | y <= x].
 Definition gtr : simpl_rel R := [rel x y | y < x].
 Definition lerif x y C : Prop := ((x <= y) * ((x == y) = C))%type.
-Definition sgr x : R := if x == 0 then 0 else if x < 0 then -1 else 1.
-Definition minr x y : R := if x <= y then x else y.
-Definition maxr x y : R := if y <= x then x else y.
+Definition sgr x : R := if x == 0 return R then 0 else if x < 0 return R then -1 else 1.
+Definition minr x y : R := if x <= y return R then x else y.
+Definition maxr x y : R := if y <= x return R then x else y.
 
 Definition Rpos : qualifier 0 R := [qualify x : R | 0 < x].
 Definition Rneg : qualifier 0 R := [qualify x : R | x < 0].
@@ -1071,7 +1071,7 @@ Lemma normr_ge0 x : 0 <= `|x|. Proof. by rewrite ger0_def normr_id. Qed.
 Hint Resolve normr_ge0.
 
 Lemma ler0_norm x : x <= 0 -> `|x| = - x.
-Proof. by move=> x_le0; rewrite -[r in _ = r]ger0_norm ?normrN ?oppr_ge0. Qed.
+Proof. move=> x_le0. Unset Use Munify. rewrite -[r in _ = r]ger0_norm. Set Use Munify. by rewrite normrN . by rewrite oppr_ge0. Qed.
 
 Definition gtr0_norm x (hx : 0 < x) := ger0_norm (ltrW hx).
 Definition ltr0_norm x (hx : x < 0) := ler0_norm (ltrW hx).
@@ -1787,7 +1787,7 @@ Proof. exact: (big_ind _ _ (@ler_paddl 0)). Qed.
 Lemma ler_sum I (r : seq I) (P : pred I) (F G : I -> R) :
     (forall i, P i -> F i <= G i) ->
   \sum_(i <- r | P i) F i <= \sum_(i <- r | P i) G i.
-Proof. exact: (big_ind2 _ (lerr _) ler_add). Qed.
+Proof. exact: (big_ind2 (fun x y => x <= y) (lerr _) ler_add). Qed.
 
 Lemma psumr_eq0 (I : eqType) (r : seq I) (P : pred I) (F : I -> R) :
     (forall i, P i -> 0 <= F i) ->
@@ -1802,7 +1802,10 @@ Lemma psumr_eq0P (I : finType) (P : pred I) (F : I -> R) :
      (forall i, P i -> 0 <= F i) -> \sum_(i | P i) F i = 0 ->
   (forall i, P i -> F i = 0).
 Proof.
-move=> F_ge0 /eqP; rewrite psumr_eq0 // -big_all big_andE => /forallP hF i Pi.
+move=> F_ge0 /eqP; rewrite psumr_eq0 // -big_all big_andE. 
+Unset Use Munify. move => /forallP. Set Use Munify.
+move=>  hF i Pi.
+move: (hF i); rewrite implyTb Pi /= => /eqP.
 by move: (hF i); rewrite implyTb Pi /= => /eqP.
 Qed.
 
@@ -3754,7 +3757,7 @@ by case: maxrP => hyz; rewrite minr_r // ler_maxr (ltrW hxy, lerr) ?orbT.
 Qed.
 
 Lemma maxr_minr : @right_distributive R R max min.
-Proof. by move=> x y z; rewrite maxrC maxr_minl ![_ _ x]maxrC. Qed.
+Proof. by move=> x y z; rewrite maxrC maxr_minl ![max _ x]maxrC. Qed.
 
 Lemma minr_maxl : @left_distributive R R min max.
 Proof.
@@ -3763,7 +3766,7 @@ by rewrite maxr_minl !(oppr_max, oppr_min, opprK).
 Qed.
 
 Lemma minr_maxr : @right_distributive R R min max.
-Proof. by move=> x y z; rewrite minrC minr_maxl ![_ _ x]minrC. Qed.
+Proof. by move=> x y z; rewrite minrC minr_maxl ![min _ x]minrC. Qed.
 
 Lemma minr_pmulr x y z : 0 <= x -> x * min y z = min (x * y) (x * z).
 Proof.

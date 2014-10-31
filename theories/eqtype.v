@@ -220,10 +220,10 @@ apply: (iffP idP) => [notDx y | notDx]; first by apply: contraTneq => ->.
 exact: contraL (notDx x) _.
 Qed.
 
-Lemma ifN_eq R x y vT vF : x != y -> (if x == y then vT else vF) = vF :> R.
+Lemma ifN_eq R x y vT vF : x != y -> (if x == y return R then vT else vF) = vF :> R.
 Proof. exact: ifN. Qed.
 
-Lemma ifN_eqC R x y vT vF : x != y -> (if y == x then vT else vF) = vF :> R.
+Lemma ifN_eqC R x y vT vF : x != y -> (if y == x return R then vT else vF) = vF :> R.
 Proof. by rewrite eq_sym; apply: ifN. Qed.
 
 End Contrapositives.
@@ -419,10 +419,10 @@ Variables (aT : eqType) (rT : Type).
 
 CoInductive fun_delta : Type := FunDelta of aT & rT.
 
-Definition fwith x y (f : aT -> rT) := [fun z => if z == x then y else f z].
+Definition fwith x y (f : aT -> rT) := [fun z => if z == x return rT then y else f z].
 
 Definition app_fdelta df f z :=
-  let: FunDelta x y := df in if z == x then y else f z.
+  let: FunDelta x y := df in if z == x return rT then y else f z.
 
 End FunWith.
 
@@ -551,7 +551,7 @@ Proof. exact: pcan_inj valK. Qed.
 Lemma valKd u0 : cancel (@val _) (insubd u0).
 Proof. by move=> u; rewrite /insubd valK. Qed.
 
-Lemma val_insubd u0 x : val (insubd u0 x) = if P x then x else val u0.
+Lemma val_insubd u0 x : val (insubd u0 x) = if P x return T then x else val u0.
 Proof. by rewrite /insubd; case: insubP => [u -> | /negPf->]. Qed.
 
 Lemma insubdK u0 : {in P, cancel (insubd u0) (@val _)}.
@@ -560,7 +560,7 @@ Proof. by move=> x Px; rewrite /= val_insubd [P x]Px. Qed.
 Definition insub_eq x :=
   let Some_sub Px := Some (Sub x Px : sT) in
   let None_sub _ := None in
-  (if P x as Px return P x = Px -> _ then Some_sub else None_sub) (erefl _).
+  (if P x as Px return P x = Px -> option sT then Some_sub else None_sub) (erefl _).
 
 Lemma insub_eqE : insub_eq =1 insub.
 Proof.
@@ -605,8 +605,8 @@ Notation "[ 'subType' 'for' v ]" := (clone_subType _ v id idfun)
 Notation "[ 'subType' 'of' U ]" := (clone_subType U _ id id)
  (at level 0, format "[ 'subType'  'of'  U ]") : form_scope.
 
-Definition NewType T U v c Urec :=
-  let Urec' P IH := Urec P (fun x : T => IH x isT : P _) in
+Definition NewType T U v c (Urec : forall z, (forall x, z (c x)) -> forall u, z u) :=
+  let Urec' P (IH : forall x, _ -> _) := Urec P (fun x : T => IH x isT : P _) in
   SubType U v (fun x _ => c x) Urec'.
 Implicit Arguments NewType [T U].
 
@@ -694,7 +694,7 @@ Section SubEqType.
 
 Variables (T : eqType) (P : pred T) (sT : subType P).
 
-Notation Local ev_ax := (fun T v => @Equality.axiom T (fun x y => v x == v y)).
+Notation Local ev_ax := (fun T' (v : T' -> T) => @Equality.axiom T' (fun x y => v x == v y)).
 Lemma val_eqP : ev_ax sT val. Proof. exact: inj_eqAxiom val_inj. Qed.
 
 Definition sub_eqMixin := EqMixin val_eqP.

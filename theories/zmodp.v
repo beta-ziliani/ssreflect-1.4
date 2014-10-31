@@ -79,7 +79,7 @@ Definition Zp1 := inZp 1.
 Definition Zp_opp x := inZp (p - x).
 Definition Zp_add x y := inZp (x + y).
 Definition Zp_mul x y := inZp (x * y).
-Definition Zp_inv x := if coprime p x then inZp (egcdn x p).1 else x.
+Definition Zp_inv x := if coprime p x return 'I_p then inZp (egcdn x p).1 else x.
 
 (* Additive group structure. *)
 
@@ -201,7 +201,7 @@ Lemma big_ord1 R idx (op : @Monoid.law R idx) F :
 Proof. by rewrite big_ord_recl big_ord0 Monoid.mulm1. Qed.
 
 Lemma big_ord1_cond R idx (op : @Monoid.law R idx) P F :
-  \big[op/idx]_(i < 1 | P i) F i = if P 0 then F 0 else idx.
+  \big[op/idx]_(i < 1 | P i) F i = if P 0 return R then F 0 else idx.
 Proof. by rewrite big_mkcond big_ord1. Qed.
 
 Section ZpRing.
@@ -260,7 +260,7 @@ Section Groups.
 
 Variable p : nat.
 
-Definition Zp := if p > 1 then [set: 'Z_p] else 1%g.
+Definition Zp := if p > 1 return {set ordinal_finType (Zp_trunc p).+2} then [set: 'Z_p] else 1%g.
 Definition units_Zp := [set: {unit 'Z_p}].
 
 Lemma Zp_cast : p > 1 -> (Zp_trunc p).+2 = p.
