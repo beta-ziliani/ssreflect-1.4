@@ -3389,7 +3389,7 @@ have sXvG W: {subset Xv W <= G} by move=> x /andP[/sXG].
 have defW W: (\sum_(x in Xv W) M *m rG x :=: W)%MS.
   apply/eqmxP; rewrite -(geq_leqif (mxrank_leqif_eq _)); last first.
     by apply/sumsmx_subP=> x /andP[].
-  rewrite -(leq_add2r (\sum_(W' | W' != W) \rank W')) -((bigD1 W) predT) //=.
+  rewrite -(leq_add2r (\sum_(W' | W' != W) \rank W')). Unset Use Munify. rewrite -((bigD1 W) predT) //=. Set Use Munify.
   rewrite -(mxdirectP (Socle_direct sH)) /= -/(Socle _) Clifford_Socle1 -defX1.
   apply: leq_trans (mxrankS _) (mxrank_sum_leqif _).1 => /=.
   rewrite (bigID (sMv W))%MS addsmxS //=.
@@ -4793,7 +4793,7 @@ have: {in [::], forall M, mxsimple rG M} by [].
 elim: _.+1 {-2}nil (ltnSn (n - \rank (span nil))) => // m IHm Ms Ms_ge_n simMs.
 rewrite ltnS in Ms_ge_n; pose V := span Ms; pose Vt := mx_term V.
 pose Ut i := vec_mx (row_var F (n * n) i); pose Zt := mx_term (0 : 'M[F]_n).
-pose exU i f := Exists_row_form (n * n) i (~ submx_form (Ut i) Zt /\ f (Ut i)).
+pose exU i (f : _ -> GRing.formula F) := Exists_row_form (n * n) i (~ submx_form (Ut i) Zt /\ f (Ut i)).
 pose meetUVf U := exU 1%N (fun W => submx_form W Vt /\ submx_form W U)%T.
 pose mx_sat := GRing.sat (@row_env F (n * n) [::]).
 have ev_sub0 := GRing.qf_evalP _ (submx_form_qf _ Zt).
