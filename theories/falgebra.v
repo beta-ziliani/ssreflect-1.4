@@ -480,10 +480,14 @@ Proof.
 have [-> | nzU] := eqVneq U 0%VS.
   by right=> [[e []]]; rewrite memv0 => ->.
 pose X := vbasis U; pose feq f1 f2 := [tuple of map f1 X ++ map f2 X].
+Unset Use Munify. (* universe inconsistency *)
 have feqL f i: tnth (feq _ f _) (lshift _ i) = f X`_i.
+Set Use Munify.
   set v := f _; rewrite (tnth_nth v) /= nth_cat size_map size_tuple.
   by rewrite ltn_ord (nth_map 0) ?size_tuple.
+Unset Use Munify. (* universe inconsistency *)
 have feqR f i: tnth (feq _ _ f) (rshift _ i) = f X`_i.
+Set Use Munify.
   set v := f _; rewrite (tnth_nth v) /= nth_cat size_map size_tuple.
   by rewrite ltnNge leq_addr addKn /= (nth_map 0) ?size_tuple.
 apply: decP (vsolve_eq (feq _ amulr amull) (feq _ id id) U) _.
@@ -605,7 +609,7 @@ Qed.
 
 Lemma closureaEr U : (<<U>>%AS = 1 + <<U>>%AS * U)%VS.
 Proof.
-rewrite [X in X = _]closureaEl; congr (_ + _)%VS.
+Unset Use Munify. rewrite [X in X = _]closureaEl. Set Use Munify. congr (_ + _)%VS.
 rewrite big_distrr big_distrl.
 apply: eq_bigr => i _ /=.
 by rewrite -expvSr -expvSl.
@@ -636,8 +640,8 @@ Qed.
 Lemma closureaM U : (<<U>>%AS * <<U>>%AS = <<U>>%AS)%VS.
 Proof.
 apply:subv_anti.
-rewrite [X in (<<U>>%AS <= X * _)%VS]closureaEl prodvDl prod1v addvSl.
-by rewrite closurea_ideall // [X in (_ <= X)%VS]closureaEl addvSr.
+Unset Use Munify. rewrite [X in (<<U>>%AS <= X * _)%VS]closureaEl. Set Use Munify. rewrite prodvDl prod1v addvSl.
+rewrite closurea_ideall //. Unset Use Munify. rewrite [X in (_ <= X)%VS]closureaEl. Set Use Munify. by rewrite addvSr.
 Qed.
 
 Lemma closureaX n U : (<<U>>%AS ^+ n.+1 = <<U>>%AS)%VS.
@@ -673,31 +677,31 @@ Lemma ideall_closurea_sub U V : (1 <= V -> U * V <= V -> <<U>>%AS <= V)%VS.
 Proof.
 move => H1V HUV.
 apply: subv_trans (closurea_ideall HUV).
-by rewrite -[X in (X <= _)%VS]prodv1 prodvSr.
+Unset Use Munify. rewrite -[X in (X <= _)%VS]prodv1. Set Use Munify. by rewrite prodvSr.
 Qed.
 
 Lemma idealr_closurea_sub U V : (1 <= V -> V * U <= V -> <<U>>%AS <= V)%VS.
 Proof.
 move => H1V HUV.
 apply: subv_trans (closurea_idealr HUV).
-by rewrite -[X in (X <= _)%VS]prod1v prodvSl.
+Unset Use Munify. rewrite -[X in (X <= _)%VS]prod1v. Set Use Munify. by rewrite prodvSl.
 Qed.
 
 Lemma closureaS U V : (U <= V -> <<U>>%AS <= <<V>>%AS)%VS.
 Proof.
 move => HUV.
 rewrite ideall_closurea_sub ?sub1_closure //.
-rewrite -[X in (_ <= X)%VS]closureaM prodvSl //.
+Unset Use Munify. rewrite  -[X in (_ <= X)%VS]closureaM. Set Use Munify. rewrite prodvSl //.
 apply: (subv_trans HUV).
 by rewrite subv_closure.
 Qed.
 
 Lemma closurea_add_closure U V : (<< <<U>>%AS + V>>%AS = <<U + V>>%AS)%VS.
 Proof.
-apply: subv_anti; rewrite [X in _ && X]closureaS ?andbT; last first.
+apply: subv_anti. Unset Use Munify. rewrite [X in _ && X]closureaS ?andbT; last first. Set Use Munify.
   by rewrite addvS ?subvv ?subv_closure.
 apply: ideall_closurea_sub; first by apply: sub1_closure.
-rewrite -[X in (_ <= X)%VS]closureaM prodvSl // subv_add.
+Unset Use Munify. rewrite -[X in (_ <= X)%VS]closureaM. Set Use Munify. rewrite prodvSl // subv_add.
 rewrite closureaS ?addvSl //=.
 apply: subv_trans (subv_closure _).
 by rewrite addvSr.
@@ -895,7 +899,7 @@ move=> Uv; have /memv_imgP[v1 Av1 v1w]: algid A \in (amulr (val w) @: A)%VS.
   apply: subvP (memv_algid A); rewrite -dimv_leqif_sup.
     rewrite limg_dim_eq // -(capv0 A); congr (_ :&: _)%VS.
     by apply/eqP/lker0P=> v1 v2; rewrite !lfunE; apply: (mulIr Uv).
-  by rewrite -[V in (_ <= V)%VS]prodv_id limg_amulr prodvSr // -memvE (valP w).
+  Unset Use Munify. rewrite -[V in (_ <= V)%VS]prodv_id. Set Use Munify. by rewrite limg_amulr prodvSr // -memvE (valP w).
 rewrite lfunE /= in v1w; apply/unitrP; exists (Subvs Av1).
 split; apply: val_inj => //; apply: (mulIr Uv).
 by rewrite /= -mulrA -v1w algidl ?algidr ?(valP w).
@@ -1034,7 +1038,7 @@ rewrite ideall_closurea_sub.
 - rewrite andbT limg_sum; apply/subv_sumP => i _.
   by rewrite aimgX subvX_closure.
 - by rewrite -(aimg1 f) limgS // sub1_closure.
-- by rewrite -aimgM limgS // [X in (_ <= X)%VS]closureaEl addvSr.
+- rewrite -aimgM limgS //. Unset Use Munify. rewrite [X in (_ <= X)%VS]closureaEl. Set Use Munify. by rewrite addvSr.
 Qed.
 
 Lemma aimg_adjoin (f : ahom aT rT) U x :

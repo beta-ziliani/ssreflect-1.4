@@ -266,13 +266,13 @@ Local Notation "p ^ f" := (map_poly f p) : ring_scope.
 Variables (F L: fieldType) (iota : {rmorphism F -> L}).
 Variables (z : L) (p : {poly F}).
 
-Let p' := if ((p != 0) && (root (p ^ iota) z))
+Let p' := if ((p != 0) && (root (p ^ iota) z)) return {poly F}
           then  (lead_coef p)^-1 *: p
           else 'X.
 
 Let p'_mon : p' \is monic.
 Proof.
-rewrite (fun_if (fun p => p \in _)) monicX.
+Unset Use Munify. rewrite (fun_if (fun p => p \in _)). Set Use Munify. rewrite monicX.
 case: ifP => // /andP [Hp0 _].
 rewrite monicE /p' /lead_coef coefZ.
 by rewrite size_scale ?mulVf ?invr_neq0 // -/(lead_coef p) lead_coef_eq0.
@@ -281,7 +281,7 @@ Qed.
 Let p'ne0 : p' != 0.
 Proof. by rewrite monic_neq0 // p'_mon. Qed.
 
-Let z' := if ((p != 0) && (root (p ^ iota) z))
+Let z' := if ((p != 0) && (root (p ^ iota) z)) return L
           then z
           else 0.
 
@@ -400,7 +400,7 @@ Lemma mulfxA : associative (subfext_mul).
 Proof.
 elim/quotW=> x; elim/quotW=> y; elim/quotW=> w; rewrite !piE /subfx_mul_rep.
 rewrite !poly_rV_K_modp_subproof [_ %% p' * _ w]mulrC.
-by rewrite !modp_mul // mulrA [_ * _ w]mulrC [_ w * (_ x * _ y)]mulrC.
+rewrite !modp_mul // mulrA. Unset Use Munify. by rewrite [_ * _ w]mulrC [_ w * (_ x * _ y)]mulrC. Set Use Munify.
 Qed.
 
 Lemma mulfxC : commutative subfext_mul.
@@ -435,7 +435,7 @@ Canonical subfext_comRing :=
   Eval hnf in ComRingType subFExtend mulfxC.
 
 Definition poly_invert (q : {poly F}) : {poly F} :=
-  if (horner_morph iotaz q) == 0 then 0
+  if (horner_morph iotaz q) == 0 return {poly F} then 0
   else let g := gdcop q p' in
        let e := egcdp q g in
        let k := e.1 * q + e.2 * g in
@@ -678,7 +678,7 @@ apply: (iffP idP).
   rewrite memvE !(subv_trans _ H) ?subv_adjoin //.
   by apply: memv_adjoin.
 move/andP.
-rewrite -subv_add -[X in (<<_>>%AS <= X)%VS]subfield_closed.
+rewrite -subv_add. Unset Use Munify. rewrite -[X in (<<_>>%AS <= X)%VS]subfield_closed. Set Use Munify.
 apply: closureaS.
 Qed.
 
@@ -690,7 +690,7 @@ apply: (iffP idP).
   move => x /(seqv_sub_adjoin K); move: x.
   by move/subvP: H; apply.
 case => HKE /span_subvP/(conj HKE)/andP.
-rewrite -subv_add -[X in (<<_>>%AS <= X)%VS]subfield_closed.
+rewrite -subv_add. Unset Use Munify. rewrite -[X in (<<_>>%AS <= X)%VS]subfield_closed. Set Use Munify.
 apply: closureaS.
 Qed.
 
@@ -847,7 +847,7 @@ Definition power_space U x n := (\sum_(i < n) U * <[x ^+ i]>)%VS.
 Lemma power_space_in_adjoin U x n : (power_space U x n <= <<U; x>>%AS)%VS.
 Proof.
 apply/subv_sumP => i _.
-rewrite -[X in (_ <= X)%VS]prodv_id prodvS ?subv_adjoin //.
+Unset Use Munify. rewrite -[X in (_ <= X)%VS]prodv_id. Set Use Munify. rewrite prodvS ?subv_adjoin //.
 rewrite -expv_line (subv_trans (subvX_closure _ _)) // closureaS //.
 by rewrite addvSr.
 Qed.
@@ -878,8 +878,8 @@ rewrite -prodvA -expv_line -expvSr expv_line /=.
 rewrite ltnS leq_eqVlt in Hi.
 case/orP: Hi => [/eqP -> | Hi]; last first.
   by apply:(sumv_sup (lift ord0 (Ordinal Hi))) => //; rewrite lift0 subvv.
-rewrite -big_distrr /= -[in X in (_ <= X)%VS]prodv_id -prodvA big_distrr /=.
-rewrite -[in X in (_ <= (X * _))%VS]prodv_id -prodvA prodvSr //.
+rewrite -big_distrr /=. Unset Use Munify. rewrite -[in X in (_ <= X)%VS]prodv_id. Set Use Munify. rewrite -prodvA big_distrr /=.
+Unset Use Munify. rewrite -[in X in (_ <= (X * _))%VS]prodv_id. Set Use Munify. rewrite -prodvA prodvSr //.
 rewrite -[X in <[X]>%VS](mulKf Hz0); apply: memv_prod => //.
 by rewrite rpredV.
 Qed.
@@ -948,7 +948,7 @@ rewrite -[_ == _]dimv_leqif_eq; last by apply: power_space_in_adjoin.
 move/directvP => -> /=.
 rewrite (dim_sup_field (F:=K)) ?subv_adjoin //.
 rewrite /elementDegree prednK ?divn_gt0 ?dimvS ?subv_adjoin ?adim_gt0 //.
-rewrite -[X in (X * _)%N]subn0 -sum_nat_const_nat big_mkord.
+Unset Use Munify. rewrite -[X in (X * _)%N]subn0. Set Use Munify. rewrite -sum_nat_const_nat big_mkord.
 apply/eqP; apply: eq_bigr.
 case: (eqVneq x 0) => [->| Hx0 i _]; last first.
   by rewrite dim_cosetv // expf_eq0 negb_and Hx0 orbT.
@@ -966,7 +966,7 @@ rewrite directvE /= -[(\sum_ _ _)%VS]/(Fadjoin K x).
 apply/eqP.
 rewrite -Fadjoin_is_power_space.
 rewrite (dim_sup_field (F:=K)) ?subv_adjoin /elementDegree //=.
-rewrite -[X in (X * _)%N]subn0 prednK; last first.
+Unset Use Munify. rewrite -[X in (X * _)%N]subn0. Set Use Munify. rewrite prednK; last first.
   rewrite divn_gt0 ?adim_gt0 // dimvS // (subv_trans _ (subv_closure _)) //.
   by rewrite addvSl.
 rewrite -sum_nat_const_nat big_mkord /=.
@@ -989,7 +989,7 @@ move: {Hv} i Hi.
 move/eqP: Hx ->.
 rewrite /elementDegree.
 move/addv_idPl: (sub0v K) ->.
-rewrite -[X in \dim_X _]subfield_closed divnn adim_gt0.
+Unset Use Munify. rewrite -[X in \dim_X _]subfield_closed. Set Use Munify. rewrite divnn adim_gt0.
 by case; case.
 Qed.
 
@@ -1210,7 +1210,10 @@ Section Horner.
 
 Variables z : L.
 
+Unset Use Munify. (* one eta expansion more than needed *)
 Definition fieldExt_horner := horner_morph (fun x => mulrC z (in_alg L x)).
+Set Use Munify.
+
 Canonical fieldExtHorner_additive := [additive of fieldExt_horner].
 Canonical fieldExtHorner_rmorphism := [rmorphism of fieldExt_horner].
 Lemma fieldExt_hornerC b : fieldExt_horner b%:P = b%:A.
