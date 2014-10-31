@@ -1062,3 +1062,7 @@ rewrite -defS -2!mulmxA; have ->: T *m pinvmx T = 1%:M.
 by move=> i; rewrite mulmx1 -map_mxM 2!mxE denq_int mxE.
 Qed.
 
+
+Set Print Stats.
+
+

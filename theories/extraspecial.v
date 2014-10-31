@@ -832,3 +832,7 @@ case: n => [|n] /=; first by rewrite isogEcard card_pX1p2n // card_DnQ andbF.
 apply: contraL (leqnn n.+1) => isoDn1DnQ.
 by rewrite -ltnNge -rank_Dn (isog_p_rank isoDn1DnQ) rank_DnQ.
 Qed.
+
+Set Print Stats.
+
+

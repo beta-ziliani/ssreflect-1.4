@@ -1075,3 +1075,7 @@ Bind Scope lrfun_scope with ahom.
 
 Notation "\1" := (@id_ahom _ _) : lrfun_scope.
 Notation "f \o g" := (comp_ahom f g) : lrfun_scope.
+
+Set Print Stats.
+
+

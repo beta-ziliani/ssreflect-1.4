@@ -2871,3 +2871,7 @@ by case: unliftP => [j'|] ->; [exact: Uu | rewrite /= mxE].
 Qed.
 
 End CormenLUP.
+
+Set Print Stats.
+
+

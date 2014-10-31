@@ -645,3 +645,7 @@ Qed.
 End IterCprod.
 
 
+
+Set Print Stats.
+
+

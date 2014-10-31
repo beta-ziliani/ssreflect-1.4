@@ -545,3 +545,7 @@ by rewrite /central_factor -quotient_cents2 // cGKb sHK -(quotientSGK nHK).
 Qed.
 
 End Central.
+
+Set Print Stats.
+
+

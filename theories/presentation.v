@@ -253,3 +253,7 @@ Qed.
 
 End PresentationTheory.
 
+
+Set Print Stats.
+
+

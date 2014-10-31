@@ -1792,3 +1792,8 @@ Lemma can_mono_in :
 Proof. by move=> mf x y hx hy /=; rewrite -mf // !fgK_on. Qed.
 
 End MonoHomoMorphismTheory_in.
+
+Set Print Stats.
+
+
+

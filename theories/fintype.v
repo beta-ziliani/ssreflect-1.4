@@ -1992,3 +1992,7 @@ Proof. by rewrite !cardT !enumT {1}unlock size_cat !size_map. Qed.
 
 
 End SumFinType.
+
+Set Print Stats.
+
+

@@ -720,3 +720,7 @@ Implicit Arguments adjunction_n_comp [T T' e e' a].
 
 Unset Implicit Arguments.
 
+
+Set Print Stats.
+
+

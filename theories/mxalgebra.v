@@ -2768,3 +2768,7 @@ Lemma map_center_mx m n (E : 'A_(m, n)) : (('Z(E))^f :=: 'Z(E^f))%MS.
 Proof. by rewrite /center_mx -map_cent_mx; exact: map_capmx. Qed.
 
 End MapMatrixSpaces.
+
+Set Print Stats.
+
+

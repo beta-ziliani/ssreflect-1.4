@@ -1056,3 +1056,7 @@ by rewrite mxE (eq_prim_root_expr prim_w) !modIp'.
 Qed.
 
 End Extraspecial.
+
+Set Print Stats.
+
+

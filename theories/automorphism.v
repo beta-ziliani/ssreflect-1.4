@@ -488,3 +488,7 @@ Qed.
 End CharInjm.
 
 Unset Implicit Arguments.
+
+Set Print Stats.
+
+

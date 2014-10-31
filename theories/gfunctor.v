@@ -480,3 +480,7 @@ Canonical trivGfun_pgFun := [pgFun by trivGfun_cont].
 
 End GFunctorExamples.
 
+
+Set Print Stats.
+
+

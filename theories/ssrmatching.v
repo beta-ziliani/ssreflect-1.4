@@ -26,3 +26,7 @@ Notation LHS := (X in X = _)%pattern.
 End SsrMatchingSyntax.
 
 Export SsrMatchingSyntax.
+
+Set Print Stats.
+
+

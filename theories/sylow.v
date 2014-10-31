@@ -674,3 +674,7 @@ by case/setIP: PEy2 => _ ->; rewrite Ny2 subsetI sDE.
 Qed.
 
 End NilPGroups.
+
+Set Print Stats.
+
+

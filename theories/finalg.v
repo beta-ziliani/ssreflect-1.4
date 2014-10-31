@@ -1296,3 +1296,7 @@ Prenex Implicits FinRing.uval.
 Notation "''U'" := (unit_action _) (at level 8) : action_scope.
 Notation "''U'" := (unit_groupAction _) (at level 8) : groupAction_scope.
 
+
+Set Print Stats.
+
+

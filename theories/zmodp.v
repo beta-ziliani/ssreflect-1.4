@@ -361,3 +361,7 @@ Canonical Fp_decFieldType :=
   Eval hnf in [decFieldType of 'F_p for Fp_finFieldType].
 
 End PrimeField.
+
+Set Print Stats.
+
+

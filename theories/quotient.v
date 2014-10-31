@@ -971,3 +971,7 @@ Lemma index_cosetpre : #|coset H @*^-1 L : coset H @*^-1 M| = #|L : M|.
 Proof. by rewrite index_morphpre ?sub_im_coset. Qed.
 
 End CardCosetpre.
+
+Set Print Stats.
+
+

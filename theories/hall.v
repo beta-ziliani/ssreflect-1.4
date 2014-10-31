@@ -894,3 +894,7 @@ by apply: normal_sub_max_pgroup (Hall_max sylQ) pR _; rewrite normal_subnorm.
 Qed.
 
 End SylowSolvableAct.
+
+Set Print Stats.
+
+

@@ -2471,3 +2471,7 @@ Qed.
 
 End EqAllPairs.
 
+
+Set Print Stats.
+
+

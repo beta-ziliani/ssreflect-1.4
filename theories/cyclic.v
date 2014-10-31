@@ -864,3 +864,7 @@ exact: Aut_prime_cycle_cyclic.
 Qed.
 
 End AutPrime.
+
+Set Print Stats.
+
+

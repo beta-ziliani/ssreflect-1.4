@@ -1770,3 +1770,7 @@ Proof. by move=> Pi0; apply: dvdn_trans; rewrite (bigD1 i0) ?dvdn_gcdl. Qed.
 Implicit Arguments biggcdn_inf [I P F m].
 
 Unset Implicit Arguments.
+
+Set Print Stats.
+
+

@@ -2718,3 +2718,7 @@ Notation "[ 'Aut' G ]" := (aut_action G) : action_scope.
 Notation "[ 'Aut' G ]" := (aut_groupAction G) : groupAction_scope.
 
 
+
+Set Print Stats.
+
+

@@ -2605,3 +2605,7 @@ by rewrite lead_coefXsubC mulr1 big_cons -scalerAl mulrC.
 Qed.
 
 End ClosedField.
+
+Set Print Stats.
+
+

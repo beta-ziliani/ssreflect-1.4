@@ -6181,3 +6181,7 @@ End Test3.
 
 *)
 (* end hide *)
+
+Set Print Stats.
+
+

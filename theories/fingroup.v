@@ -3100,3 +3100,7 @@ Notation "[ 'min' G | gP & gQ ]" := [min G | gP && gQ] : group_scope.
 Implicit Arguments mingroupP [gT gP G].
 Implicit Arguments maxgroupP [gT gP G].
 Prenex Implicits mingroupP maxgroupP.
+
+Set Print Stats.
+
+

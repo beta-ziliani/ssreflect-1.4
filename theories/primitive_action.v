@@ -346,3 +346,7 @@ by exists (a * a2); rewrite (groupM, actM) //= !n_act_add toxa.
 Qed.
 
 End NTransitveProp1.
+
+Set Print Stats.
+
+

@@ -1703,3 +1703,7 @@ End DirprodIsom.
 
 Implicit Arguments mulgmP [gT H1 H2 G].
 Prenex Implicits mulgm mulgmP.
+
+Set Print Stats.
+
+

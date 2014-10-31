@@ -680,3 +680,7 @@ Definition tree_countMixin T := PcanCountMixin (GenTree.codeK T).
 Canonical tree_countType T := CountType (GenTree.tree T) (tree_countMixin T).
 
 End CountableDataTypes.
+
+Set Print Stats.
+
+

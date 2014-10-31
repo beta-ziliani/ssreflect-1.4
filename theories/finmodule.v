@@ -612,3 +612,7 @@ Qed.
 End FactorTransfer.
 
 End Transfer.
+
+Set Print Stats.
+
+

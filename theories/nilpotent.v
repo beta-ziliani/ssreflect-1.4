@@ -739,3 +739,7 @@ by rewrite subsetI -morphimR ?morphimS.
 Qed.
 
 End QuotientSol.
+
+Set Print Stats.
+
+

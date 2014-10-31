@@ -778,3 +778,7 @@ rewrite -(@dvdn_pmul2l #|<[z ^ a^-1]> :&: <[y]>|) ?cardG_gt0 // LagrangeI.
 rewrite -[#|<[_]>|](partnC p) ?order_gt0 // dvdn_pmul2r // ozp.
 by rewrite cardSg ?subsetIr.
 Qed.
+
+Set Print Stats.
+
+

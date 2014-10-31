@@ -5852,3 +5852,7 @@ by apply: contraNneq nscalA => ->; exact: scalar_mx_is_scalar.
 Qed.
 
 End BuildSplittingField.
+
+Set Print Stats.
+
+

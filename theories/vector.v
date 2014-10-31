@@ -2038,3 +2038,7 @@ Qed.
 
 End Solver.
 
+
+Set Print Stats.
+
+

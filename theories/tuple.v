@@ -412,3 +412,7 @@ Notation "[ 'tuple' F | i < n ]" := (mktuple (fun i : 'I_n => F))
    format "[ '[hv' 'tuple'  F '/'   |  i  <  n ] ']'") : form_scope.
 
 
+
+Set Print Stats.
+
+

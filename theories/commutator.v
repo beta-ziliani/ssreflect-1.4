@@ -361,3 +361,7 @@ Canonical der_mgFun n := [mgFun by dergS^~ n].
 Lemma isog_der (aT rT : finGroupType) n (G : {group aT}) (H : {group rT}) :
   G \isog H -> G^`(n) \isog H^`(n).
 Proof. exact: gFisog. Qed.
+
+Set Print Stats.
+
+

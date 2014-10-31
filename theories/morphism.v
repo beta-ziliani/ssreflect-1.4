@@ -1537,3 +1537,7 @@ Proof. exact: isom_isog isom_subg. Qed.
 
 End SubMorphism.
 
+
+Set Print Stats.
+
+

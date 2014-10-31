@@ -858,3 +858,7 @@ End SumEqType.
 
 Implicit Arguments sum_eqP [T1 T2 x y].
 Prenex Implicits sum_eqP.
+
+Set Print Stats.
+
+

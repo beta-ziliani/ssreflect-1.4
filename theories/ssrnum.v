@@ -4095,3 +4095,7 @@ Export Num.Syntax Num.PredInstances.
 Notation RealLeMixin := Num.RealMixin.Le.
 Notation RealLtMixin := Num.RealMixin.Lt.
 Notation RealLeAxiom R := (Num.RealMixin.Real (Phant R) (erefl _)).
+
+Set Print Stats.
+
+

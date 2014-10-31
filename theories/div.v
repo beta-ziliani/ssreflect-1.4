@@ -936,3 +936,7 @@ by rewrite chinese_modl chinese_modr !modn_mod !eqxx.
 Qed.
 
 End Chinese.
+
+Set Print Stats.
+
+

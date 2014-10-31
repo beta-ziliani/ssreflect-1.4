@@ -1354,3 +1354,7 @@ Lemma isog_pseries pis : G \isog H -> pseries pis G \isog pseries pis H.
 Proof. exact: gFisog. Qed.
 
 End Isog.
+
+Set Print Stats.
+
+

@@ -1725,3 +1725,7 @@ apply: (can_inj (@rVpolyK _ _)).
 by rewrite q_z modp_small // -Dn ltnS size_poly.
 Qed.
 *)
+
+Set Print Stats.
+
+

@@ -1597,3 +1597,7 @@ Ltac nat_congr := first
      apply: (congr1 (addn X1) _);
      symmetry
    end ].
+
+Set Print Stats.
+
+

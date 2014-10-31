@@ -2330,3 +2330,7 @@ by rewrite (eqn_exp2l 2 0) // (eqn_exp2l 1 0).
 Qed.
 
 End ExtremalTheory.
+
+Set Print Stats.
+
+

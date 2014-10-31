@@ -527,3 +527,7 @@ case/negP: diff_hgx_z.
 rewrite -HH !mulgA -h_k_com -!mulgA [k * _]mulgA.
 by rewrite -g_k_com -!mulgA mulgV mulg1.
 Qed.
+
+Set Print Stats.
+
+

@@ -308,3 +308,7 @@ Qed.
 End FinTheory.
 Canonical exp_finType (T : finType) n := [finType of T ^ n].
 
+
+Set Print Stats.
+
+

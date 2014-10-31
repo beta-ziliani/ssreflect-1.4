@@ -780,3 +780,7 @@ by move=> p /eqP p_neq0; rat_to_ring; rewrite mulVf.
 Qed.
 
 Add Field rat_field : rat_field_theory.
+
+Set Print Stats.
+
+

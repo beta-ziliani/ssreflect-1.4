@@ -1655,3 +1655,6 @@ Qed.
 End SCN.
 
 Implicit Arguments SCN_P [gT G A].
+Set Print Stats.
+
+
