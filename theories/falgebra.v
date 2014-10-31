@@ -83,7 +83,7 @@ move=> vAm; pose vA := VectType K A vAm.
 pose am u := linfun (u \o* idfun : vA -> vA).
 have amE u v : am u v = v * u by rewrite lfunE.
 pose uam := [pred u | lker (am u) == 0%VS].
-pose vam := [fun u => if u \in uam then (am u)^-1%VF 1 else u].
+pose vam := [fun u => if u \in uam return GRing.Lmodule.sort vA then (am u)^-1%VF 1 else u].
 have vamKl: {in uam, left_inverse 1 vam *%R}.
   by move=> u Uu; rewrite /= Uu -amE lker0_lfunVK.  
 exists uam vam => // [u Uu | u v [_ uv1] | u /negbTE/= -> //].
@@ -224,7 +224,7 @@ Section InvLfun.
 Variable (K : fieldType) (aT : FalgType K).
 Implicit Types f g : 'End(aT).
 
-Definition lfun_invr f := if lker f == 0%VS then f^-1%VF else f.
+Definition lfun_invr f := if lker f == 0%VS return 'End(aT) then f^-1%VF else f.
 
 Lemma lfun_mulVr f : lker f == 0%VS -> f^-1%VF * f = 1.
 Proof. exact: lker0_compfV. Qed.
@@ -286,7 +286,7 @@ Canonical amull_linear := Eval hnf in AddLinear amull_is_linear.
 
 (* amull is a converse ring morphism *)
 Lemma amull1 : amull 1 = \1%VF.
-Proof. by apply/lfunP => u; rewrite id_lfunE lfunE [X in X = _]mul1r. Qed.
+Proof. apply/lfunP => u; rewrite id_lfunE lfunE. Unset Use Munify. by rewrite [X in X = _]mul1r. Set Use Munify. Qed.
 
 Lemma amullM x y : (amull (x * y) = amull y * amull x)%VF.
 Proof. by apply/lfunP => a; rewrite comp_lfunE !lfunE /= mulrA. Qed.
@@ -495,7 +495,7 @@ apply: (iffP (vsolve_eqP _ _ _)) => [[e Ue id_e] | [e [Ue _ id_e]]].
   split; apply/eq_bigr=> i _; rewrite -(scalerAr, scalerAl); congr (_ *: _).
     by have:= id_e (lshift _ i); rewrite !feqL lfunE.
   by have:= id_e (rshift _ i); rewrite !feqR lfunE.
-have{id_e} /all_and2[ideX idXe]:= id_e _ (vbasis_mem (mem_tnth _ X)).
+Unset Use Munify. have{id_e} /all_and2[ideX idXe]:= id_e _ (vbasis_mem (mem_tnth _ X)). Set Use Munify.
 exists e => // k; rewrite -[k]splitK.
 by case: (split k) => i; rewrite !(feqL, feqR) lfunE /= -tnth_nth.
 Qed.

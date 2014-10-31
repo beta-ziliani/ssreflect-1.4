@@ -100,7 +100,7 @@ Canonical fmod_finType := Eval hnf in FinType fmodA fmod_finMixin.
 Canonical fmod_subFinType := Eval hnf in [subFinType of fmodA].
 
 Definition fmod x := sub2f (subg A x).
-Definition actr u x := if x \in 'N(A) then fmod (fmval u ^ x) else u.
+Definition actr u x := if x \in 'N(A) return fmodA then fmod (fmval u ^ x) else u.
 
 Definition fmod_opp u := sub2f u^-1.
 Definition fmod_add u v := sub2f (u * v).
@@ -141,7 +141,7 @@ Definition fmval_sum := big_morph fmval fmvalA fmval0.
 Lemma fmvalZ n : {morph valA : x / x *+ n >-> (x ^+ n)%g}.
 Proof. by move=> u; rewrite /= morphX ?inE. Qed.
 
-Lemma fmodKcond x : val (fmod x) = if x \in A then x else 1%g.
+Lemma fmodKcond x : val (fmod x) = if x \in A return FinGroup.arg_sort gT then x else 1%g.
 Proof. by rewrite /= /fmval /= val_insubd. Qed.
 Lemma fmodK : {in A, cancel fmod val}. Proof. exact: subgK. Qed.
 Lemma fmvalK : cancel val fmod.
@@ -166,7 +166,7 @@ Qed.
 Notation "u ^@ x" := (actr u x) : ring_scope.
 
 Lemma fmvalJcond u x :
-  val (u ^@ x) = if x \in 'N(A) then val u ^ x else val u.
+  val (u ^@ x) = if x \in 'N(A) return FinGroup.sort gT then val u ^ x else val u.
 Proof. by case: ifP => Nx; rewrite /actr Nx ?fmodK // memJ_norm ?fmodP. Qed.
 
 Lemma fmvalJ u x : x \in 'N(A) -> val (u ^@ x) = val u ^ x.

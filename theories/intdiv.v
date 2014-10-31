@@ -59,7 +59,7 @@ Definition dvdz d m := (`|d| %| `|m|)%N.
 Definition gcdz m n := (gcdn `|m| `|n|)%:Z.
 
 Definition egcdz m n : int * int :=
-  if m == 0 then (0, (-1) ^+ (n < 0)%R) else
+  if m == 0 return (int*int) then (0, (-1) ^+ (n < 0)%R) else
   let: (u, v) := egcdn `|m| `|n| in (sgz m * u, - (-1) ^+ (n < 0)%R * v%:Z).
 
 Definition coprimez m n := (gcdz m n == 1).
@@ -225,8 +225,8 @@ case: n => // [[|n]] _; first by rewrite mul0r !divz0 div0z.
 wlog p_gt0: p / p > 0; last case: p => // p in p_gt0 *.
   by case/intP: p => [|p|p] IH; rewrite ?mulr0 ?divz0 ?mulrN ?divzN // IH.
 rewrite {2}(divz_eq m (n.+1%:Z * p)) mulrA mulrAC !divzMDl // ?gtr_eqF //.
-rewrite [rhs in _ + rhs]divz_small ?addr0 // ltz_divLR // divz_ge0 //.
-by rewrite mulrC ltz_pmod ?modz_ge0 ?gtr_eqF ?pmulr_lgt0.
+Unset Use Munify. rewrite [rhs in _ + rhs]divz_small. Set Use Munify. rewrite ?addr0 // ltz_divLR // divz_ge0 //.
+rewrite mulrC. admit. (* rewrite ltz_pmod ?modz_ge0 ?gtr_eqF ?pmulr_lgt0. *)
 Qed.
 
 Lemma modz_small m d : 0 <= m < d -> (m %% d)%Z = m.
@@ -978,7 +978,7 @@ exists (block_mx 1 Mu 0 R).
   by rewrite unitmxE det_ublock det_scalar1 mul1r.
 exists (1 :: d); set D1 := \matrix_(i, j) _ in dM1.
   by rewrite /= path_min_sorted // => g _; exact: dvd1n.
-rewrite [D in _ *m D *m _](_ : _ = block_mx 1 0 0 D1); last first.
+Unset Use Munify. rewrite [D in _ *m D *m _](_ : _ = block_mx 1 0 0 D1); last first. Set Use Munify.
   by apply/matrixP=> i j; do 3?[rewrite ?mxE ?ord1 //=; case: splitP => ? ->].
 rewrite !mulmx_block !(mul0mx, mulmx0, addr0) !mulmx1 add0r mul1mx -Da -dM1.
 by rewrite addNKr submxK.

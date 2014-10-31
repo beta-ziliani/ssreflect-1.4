@@ -106,8 +106,8 @@ Local Coercion Formula : formula >-> type.
 Inductive env gT := Env of {set gT} & seq gT.
 Definition env1 {gT} (x : gT : finType) := Env <[x]> [:: x].
 
-Fixpoint sat gT vT B n (s : vT -> env gT) p :=
-  match p with
+Fixpoint sat gT vT (B : set_of_finType gT) n (s : vT -> env gT) p :=
+  match p return bool with
   | Formula f =>
     [exists v, let: Env A e := s v in and_rel A B (rel (rev e) f NoRel)]
   | Generator p' =>
@@ -115,7 +115,7 @@ Fixpoint sat gT vT B n (s : vT -> env gT) p :=
     sat B n.+1 s' (p' (Cst n))
   end.
 
-Definition hom gT (B : {set gT}) p := sat B 1 env1 (p (Cst 0)).
+Definition hom gT (B : {set gT}) (p : _ -> type) := sat B 1 env1 (p (Cst 0)).
 Definition iso gT (B : {set gT}) p :=
   forall rT (H : {group rT}), (H \homg B) = hom H p.
 

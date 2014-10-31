@@ -720,7 +720,7 @@ pose memM E n (X : 'rV_n) y := exists a, rVin E n a /\ y = (a *m X^T) 0 0.
 pose finM E S := exists n, exists X, forall y, memM E n X y <-> S y.
 have tensorM E n1 n2 X Y: finM E (memM (memM E n2 Y) n1 X).
   exists (n1 * n2)%N, (mxvec (X^T *m Y)) => y.
-  Unset Use Munify. Set Munify Debug.
+  Unset Use Munify.
   split=> [[a [Ea Dy]] | [a1 [/fin_all_exists[a /all_and2[Ea Da1]] ->]]]. Set Use Munify.
     exists (Y *m (vec_mx a)^T); split=> [i|].
       exists (row i (vec_mx a)); split=> [j|]; first by rewrite !mxE; apply: Ea.
@@ -736,7 +736,7 @@ suffices [m [X [[u [_ Du]] idealM]]]: exists m,
 - do [set M := memM _ m X; move: q.[w] => z] in idealM *.
   have MX i: M (X 0 i).
     by exists (delta_mx 0 i); split=> [j|]; rewrite -?rowE !mxE.
-  Set Munify Debug. Unset Use Munify. have /fin_all_exists[a /all_and2[Fa Da1]] i := idealM _ (MX i).
+  Unset Use Munify. have /fin_all_exists[a /all_and2[Fa Da1]] i := idealM _ (MX i). Set Use Munify.
   have /fin_all_exists[r Dr] i := fin_all_exists (Fa i).
   pose A := \matrix_(i, j) r j i; pose B := z%:M - map_mx RtoK A.
   have XB0: X *m B = 0.
@@ -892,7 +892,7 @@ apply/eqP/(mulfI (nz_u_n (size p).-1)); rewrite mulr0 -(rootP pu0).
 rewrite (@horner_coef_wide _ (size p)); last first.
   by rewrite size_map_poly -(size_rev p) size_Poly.
 rewrite horner_coef mulr_sumr size_map_poly.
-rewrite [rhs in _ = rhs](reindex_inj rev_ord_inj) /=.
+Unset Use Munify. rewrite [rhs in _ = rhs](reindex_inj rev_ord_inj) /=. Set Use Munify.
 apply: eq_bigr => i _; rewrite !coef_map coef_Poly nth_rev // mulrCA.
 by congr (_ * _); rewrite -{1}(subnKC (valP i)) addSn addnC exprD exprVn ?mulfK.
 Qed.
@@ -962,7 +962,7 @@ Let Schur m n (A : 'M[term]_(1 + m, 1 + n)) (a := A 0 0) :=
   \matrix_(i, j) (drsubmx A i j - a^-1 * dlsubmx A i 0%R * ursubmx A 0%R j)%T.
 
 Fixpoint mxrank_form (r m n : nat) : 'M_(m, n) -> form :=
-  match m, n return 'M_(m, n) -> form with
+  match m, n return 'M[term]_(m, n) -> form with
   | m'.+1, n'.+1 => fun A : 'M_(1 + m', 1 + n') =>
     let nzA k := A k.1 k.2 != 0 in
     let xSchur k := Schur (xrow k.1 0%R (xcol k.2 0%R A)) in

@@ -57,7 +57,7 @@ Variable g : T -> seq T.
 Implicit Type v w a : seq T.
 
 Fixpoint dfs n v x :=
-  if x \in v then v else
+  if x \in v return seq T then v else
   if n is n'.+1 then foldl (dfs n') (x :: v) (g x) else v.
 
 Lemma subset_dfs n v a : v \subset foldl (dfs n) v a.

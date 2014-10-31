@@ -657,7 +657,7 @@ Section BigCap.
 Variable I : finType.
 Implicit Type P : pred I.
 
-Lemma bigcapv_inf i0 P Us V :
+Lemma bigcapv_inf i0 P (Us : _ -> {vspace vT}) V :
   P i0 -> (Us i0 <= V -> \bigcap_(i | P i) Us i <= V)%VS.
 Proof. by move=> Pi0; apply: subv_trans; rewrite (bigD1 i0) ?capvSl. Qed.
 
@@ -1385,7 +1385,7 @@ Lemma scale_lfunE k f x : (k *: f) x = k *: f x. Proof. exact: lfunE. Qed.
 Fact lfun_vect_iso : Vector.axiom (Vector.dim aT * Vector.dim rT) 'Hom(aT, rT).
 Proof.
 exists (mxvec \o f2mx) => [a f g|].
-  rewrite /= -linearP /= -[A in _ = mxvec A]/(f2mx (Vector.Hom _)).
+  rewrite /= -linearP /=. Unset Use Munify. rewrite -[A in _ = mxvec A]/(f2mx (Vector.Hom _)). Set Use Munify.
   congr (mxvec (f2mx _)); apply/lfunP=> v; do 2!rewrite lfunE /=.
   by rewrite unlock /= -linearP mulmxDr scalemxAr.
 apply: Bijective (Vector.Hom \o vec_mx) _ _ => [[A]|A] /=; last exact: vec_mxK.
@@ -1831,7 +1831,7 @@ Variables (I : eqType) (r0 : seq I) (P : pred I) (Vs : I -> {vspace vT}).
 Let sumv_pi_rec i :=
   fix loop r := if r is j :: r1 then
     let V1 := (\sum_(k <- r1) Vs k)%VS in
-    if j == i then addv_pi1 (Vs j) V1 else (loop r1 \o addv_pi2 (Vs j) V1)%VF
+    if j == i return 'End(vT) then addv_pi1 (Vs j) V1 else (loop r1 \o addv_pi2 (Vs j) V1)%VF
   else 0.
 
 Notation sumV := (\sum_(i <- r0 | P i) Vs i)%VS.

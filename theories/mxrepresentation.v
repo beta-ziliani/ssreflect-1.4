@@ -1772,7 +1772,7 @@ Lemma addsmx_semisimple U V :
   mxsemisimple U -> mxsemisimple V -> mxsemisimple (U + V)%MS.
 Proof.
 case=> [I W /= simW defU _] [J T /= simT defV _].
-have defUV: (\sum_ij sum_rect (fun _ => 'M_n) W T ij :=: U + V)%MS.
+have defUV: (\sum_ij sum_rect (fun _ => 'M[F]_n) W T ij :=: U + V)%MS.
   by rewrite big_sumType /=; exact: adds_eqmx.
 by apply: intro_mxsemisimple defUV _; case=> /=.
 Qed.

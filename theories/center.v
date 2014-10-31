@@ -312,7 +312,7 @@ Definition cprod_by := locked_with cprod_by_key cprod_by_def.
 Local Notation C := [set: FinGroup.arg_sort (FinGroup.base cprod_by)].
 
 Definition in_cprod : gTH * gTK -> cprod_by :=
-  let: tt as k := cprod_by_key return _ -> locked_with k cprod_by_def in
+  let: tt as k := cprod_by_key return (gTH * gTK) -> locked_with k cprod_by_def in
   subg _ \o coset kerHK.
 
 Lemma in_cprodM : {in setX H K &, {morph in_cprod : u v / u * v}}.
@@ -557,7 +557,7 @@ Import finfun.
 Variables gTH gTK : finGroupType.
 Variables (H : {group gTH}) (K : {group gTK}).
 
-Let gt_ b := if b then gTK else gTH.
+Let gt_ b := if b return finGroupType then gTK else gTH.
 Local Notation isob := ('Z(H) \isog 'Z(K)) (only parsing).
 Let G_ b := if b as b' return {group gt_ b'} then K else H.
 
