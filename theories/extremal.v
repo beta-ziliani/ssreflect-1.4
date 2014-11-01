@@ -192,14 +192,14 @@ Lemma cyclic_pgroup_Aut_structure gT p (G : {group gT}) :
         & {in A, {morph m : a / a^-1 >-> (a^-1)%R}}],
       [/\ abelian A, cyclic F, #|F| = p.-1
         & [faithful F, on 'Ohm_1(G) | [Aut G]]]
-    & if n == 0%N then A = F else
+    & if n == 0%N return Prop then A = F else
       exists t, [/\ t \in A, #[t] = 2, m t = - 1%R
-      & if odd p then
+      & if odd p return Prop then
         [/\ cyclic A /\ cyclic P,
            exists s, [/\ s \in A, #[s] = (p ^ n)%N, m s = p.+1%:R & P = <[s]>]
          & exists s0, [/\ s0 \in A, #[s0] = p, m s0 = (p ^ n).+1%:R
                         & 'Ohm_1(P) = <[s0]>]]
-   else if n == 1%N then A = <[t]>
+   else if n == 1%N return Prop then A = <[t]>
    else exists s,
         [/\ s \in A, #[s] = (2 ^ n.-1)%N, m s = 5%:R, <[s]> \x <[t]> = A
       & exists s0, [/\ s0 \in A, #[s0] = 2, m s0 = (2 ^ n).+1%:R,
@@ -488,7 +488,7 @@ Lemma modular_group_structure gT (G : {group gT}) x y :
       [/\ 'Z(G) = <[x ^+ p]>, 'Phi(G) = 'Z(G) & #|'Z(G)| = r],
       [/\ G^`(1) = <[x ^+ r]>, #|G^`(1)| = p & nil_class G = 2],
       forall k, k > 0 -> 'Mho^k(G) = <[x ^+ (p ^ k)]>
-    & if (p, n) == (2, 3) then 'Ohm_1(G) = G else
+    & if (p, n) == (2, 3) return Prop then 'Ohm_1(G) = G else
       forall k, 0 < k < n.-1 ->
          <[x ^+ (p ^ (n - k.+1))]> \x <[y]> = 'Ohm_k(G)
       /\ #|'Ohm_k(G)| = (p ^ k.+1)%N].
@@ -757,10 +757,10 @@ have{le_ou le_ov} [ou ov]: #[u] = q /\ #[v] = 4.
   have:= esym (leqif_mul (leqif_eq le_ou) (leqif_eq le_ov)).2.
   by rewrite -TI_cardMg // defB -oB eqxx eqn0Ngt cardG_gt0; do 2!case: eqP=> //.
 have sdB: <[u]> ><| <[v]> = B by rewrite sdprodE.
-have uvj j: u ^ (v ^+ j) = (if odd j then u^-1 else u).
+have uvj j: u ^ (v ^+ j) = (if odd j return gT then u^-1 else u).
   elim: j => [|j IHj]; first by rewrite conjg1.
   by rewrite expgS conjgM uv conjVg IHj (fun_if invg) invgK if_neg.
-have sqrB i j: (u ^+ i * v ^+ j) ^+ 2 = (if odd j then v ^+ 2 else u ^+ i.*2).
+have sqrB i j: (u ^+ i * v ^+ j) ^+ 2 = (if odd j return gT then v ^+ 2 else u ^+ i.*2).
   rewrite expgS; case: ifP => odd_j.
     rewrite {1}(conjgC (u ^+ i)) conjXg uvj odd_j expgVn -mulgA mulKg.
     rewrite -expgD addnn -(odd_double_half j) odd_j doubleD addnC /=.
@@ -939,7 +939,7 @@ Theorem dihedral2_structure :
       'Ohm_1(G) = G /\ (forall k, k > 0 -> 'Mho^k(G) = <[x ^+ (2 ^ k)]>),
       [/\ yG :|: xyG = G :\: X, [disjoint yG & xyG]
         & forall M, maximal M G = pred3 X My Mxy M]
-    & if n == 2 then (2.-abelem G : Prop) else
+    & if n == 2 return Prop then (2.-abelem G : Prop) else
   [/\ 'Z(G) = <[x ^+ r]>, #|'Z(G)| = 2,
        My \isog 'D_q, Mxy \isog 'D_q
      & forall U, cyclic U -> U \subset G -> #|G : U| = 2 -> U = X]].
@@ -1531,10 +1531,10 @@ Canonical extremal_group_finType := FinType _ extremal_group_finMixin.
 
 Definition extremal_class (A : {set gT}) :=
   let m := #|A| in let p := pdiv m in let n := logn p m in
-  if (n > 1) && (A \isog 'D_(2 ^ n)) then Dihedral else
-  if (n > 2) && (A \isog 'Q_(2 ^ n)) then Quaternion else
-  if (n > 3) && (A \isog 'SD_(2 ^ n)) then SemiDihedral else
-  if (n > 2) && (A \isog 'Mod_(p ^ n)) then ModularGroup else
+  if (n > 1) && (A \isog 'D_(2 ^ n)) return extremal_group_type then Dihedral else
+  if (n > 2) && (A \isog 'Q_(2 ^ n)) return extremal_group_type then Quaternion else
+  if (n > 3) && (A \isog 'SD_(2 ^ n)) return extremal_group_type then SemiDihedral else
+  if (n > 2) && (A \isog 'Mod_(p ^ n)) return extremal_group_type then ModularGroup else
   NotExtremal.
 
 Definition extremal2 A := extremal_class A \in behead enum_extremal_groups.
@@ -1628,28 +1628,28 @@ Theorem extremal2_structure (gT : finGroupType) (G : {group gT}) n x y :
   let My := <<yG>> in let Mxy := <<xyG>> in
      extremal_generators G 2 n (x, y) ->
      extremal2 G -> (cG == SemiDihedral) ==> (#[y] == 2) ->
- [/\ [/\ (if cG == Quaternion then pprod X <[y]> else X ><| <[y]>) = G,
-         if cG == SemiDihedral then #[x * y] = 4 else
-           {in G :\: X, forall z, #[z] = (if cG == Dihedral then 2 else 4)},
-         if cG != Quaternion then True else
+ [/\ [/\ (if cG == Quaternion return {set gT} then pprod X <[y]> else X ><| <[y]>) = G,
+         if cG == SemiDihedral return Prop then #[x * y] = 4 else
+           {in G :\: X, forall z, #[z] = (if cG == Dihedral return nat then 2 else 4)},
+         if cG != Quaternion return Prop then True else
          {in G, forall z, #[z] = 2 -> z = x ^+ r}
        & {in X & G :\: X, forall t z,
-            t ^ z = (if cG == SemiDihedral then t ^+ r.-1 else t^-1)}],
+            t ^ z = (if cG == SemiDihedral return gT then t ^+ r.-1 else t^-1)}],
       [/\ G ^`(1) = <[x ^+ 2]>, 'Phi(G) = G ^`(1), #|G^`(1)| = r
         & nil_class G = n.-1],
-      [/\ if n > 2 then 'Z(G) = <[x ^+ r]> /\ #|'Z(G)| = 2 else 2.-abelem G,
-          'Ohm_1(G) = (if cG == Quaternion then <[x ^+ r]> else
-                       if cG == SemiDihedral then My else G),
+      [/\ if n > 2 return Prop then 'Z(G) = <[x ^+ r]> /\ #|'Z(G)| = 2 else 2.-abelem G,
+          'Ohm_1(G) = (if cG == Quaternion return {set gT} then <[x ^+ r]> else
+                       if cG == SemiDihedral return {set gT} then My else G),
           'Ohm_2(G) = G
         & forall k, k > 0 -> 'Mho^k(G) = <[x ^+ (2 ^ k)]>],
      [/\ yG :|: xyG = G :\: X, [disjoint yG & xyG]
        & forall H : {group gT}, maximal H G = (gval H \in pred3 X My Mxy)]
-   & if n <= (cG == Quaternion) + 2 then True else
+   & if n <= (cG == Quaternion) + 2 return Prop then True else
      [/\ forall U, cyclic U -> U \subset G -> #|G : U| = 2 -> U = X,
-         if cG == Quaternion then My \isog 'Q_q else My \isog 'D_q,
-         extremal_class My = (if cG == Quaternion then cG else Dihedral),
-         if cG == Dihedral then Mxy \isog 'D_q else Mxy \isog 'Q_q
-       & extremal_class Mxy = (if cG == Dihedral then cG else Quaternion)]].
+         if cG == Quaternion return bool then My \isog 'Q_q else My \isog 'D_q,
+         extremal_class My = (if cG == Quaternion return extremal_group_type then cG else Dihedral),
+         if cG == Dihedral return bool then Mxy \isog 'D_q else Mxy \isog 'Q_q
+       & extremal_class Mxy = (if cG == Dihedral return extremal_group_type then cG else Quaternion)]].
 Proof.
 move=> cG m q r X yG xyG My Mxy genG; have [oG _ _ _] := genG.
 have logG: logn (pdiv #|G|) #|G| = n by rewrite oG pfactorKpdiv.

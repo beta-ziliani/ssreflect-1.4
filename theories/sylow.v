@@ -426,7 +426,7 @@ move=> nilG; have trO: 'O_pi(G) :&: 'O_pi^'(G) = 1.
 rewrite dprodE //.
   apply/eqP; rewrite eqEcard mul_subG ?pcore_sub // (TI_cardMg trO).
   by rewrite !(card_Hall (nilpotent_pcore_Hall _ _)) // partnC ?leqnn.
-rewrite (sameP commG1P trivgP) -trO subsetI commg_subl commg_subr.
+rewrite (sameP commG1P trivgP) -trO subsetI. Unset Use Munify. rewrite commg_subl. Set Use Munify. rewrite commg_subr. (*loops*)
 by rewrite !(subset_trans (pcore_sub _ _)) ?normal_norm ?pcore_normal.
 Qed.
 

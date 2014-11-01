@@ -302,7 +302,7 @@ have{sylP} sylP: p.-Sylow(G) P.
   rewrite pHallE (subset_trans sPH) //= (card_Hall sylP) eqn_dvd andbC.
   by rewrite -{1}(partn_part _ sppi) !partn_dvd ?cardSg ?cardG_gt0.
 rewrite partn_part ?partn_biglcm //.
-apply: (@big_ind _ (dvdn^~ _)) => [|m n|x Gx]; first exact: dvd1n.
+Unset Use Munify. apply: (@big_ind _ (dvdn^~ _)) => [|m n|x Gx]; first exact: dvd1n. Set Use Munify.
   by rewrite dvdn_lcm => ->.
 rewrite -order_constt; have p_y := p_elt_constt p x; set y := x.`_p in p_y *.
 have sYG: <[y]> \subset G by rewrite cycle_subG groupX.
@@ -1621,7 +1621,7 @@ by rewrite -defG mulG_subr.
 Qed.
 
 Fixpoint abelian_type_rec n G :=
-  if n is n'.+1 then if abelian G && (G :!=: 1) then
+  if n is n'.+1 then if abelian G && (G :!=: 1) return seq nat then
     exponent G :: abelian_type_rec n' (tag (abelian_type_subproof G))
   else [::] else [::].
 

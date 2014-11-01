@@ -735,7 +735,7 @@ have [p_pr _ _] := pgroup_pdiv pG ntG.
 have fM: {in 'Z(G) &, {morph expgn^~ p : x y / x * y}}.
   by move=> x y /setIP[_ /centP cxG] /setIP[/cxG cxy _]; exact: expgMn.
 rewrite abelemE //= center_abelian; apply/exponentP=> /= z Zz.
-apply: (@kerP _ _ _ (Morphism fM)) => //; apply: subsetP z Zz.
+Unset Use Munify. apply: (@kerP _ _ _ (Morphism fM)) => //. Set Use Munify. apply: subsetP z Zz.
 rewrite -{1}defG' gen_subG; apply/subsetP=> _ /imset2P[x y Gx Gy ->].
 have Zxy: [~ x, y] \in 'Z(G) by rewrite -defG' mem_commg.
 have Zxp: x ^+ p \in 'Z(G).
@@ -782,7 +782,7 @@ have{sZ2G'_Z} sG'Z: G^`(1) \subset 'Z(G).
   by rewrite ucn1.
 have sCG': 'C_G(A) \subset G^`(1).
   rewrite -quotient_sub1 //; last by rewrite subIset // char_norm ?der_char.
-  rewrite (subset_trans (quotient_subcent _ G A)) //= -[G in G / _]defG.
+  rewrite (subset_trans (quotient_subcent _ G A)) //=. Unset Use Munify. rewrite -[G in G / _]defG. Set Use Munify.
   have nGA: A \subset 'N(G) by rewrite -commg_subl defG.
   rewrite quotientR ?(char_norm_trans (der_char _ _)) ?normG //.
   rewrite coprime_abel_cent_TI ?quotient_norms ?coprime_morph //.
@@ -1034,7 +1034,7 @@ Lemma split1_extraspecial x :
         E \* R = G /\ E :&: R = 'Z(E),
         'Z(E) = 'Z(G) /\ 'Z(R) = 'Z(G),
         extraspecial E /\ x \in E
-      & if abelian R then R :=: 'Z(G) else extraspecial R]}}.
+      & if abelian R return Prop then R :=: 'Z(G) else extraspecial R]}}.
 Proof.
 case/setDP=> Gx notZx; rewrite inE Gx /= in notZx.
 have [[defPhiG defG'] prZ] := esG.
@@ -1167,7 +1167,7 @@ have defS: <<X>> = S.
   rewrite -genM_join sub_gen // -quotientSK ?quotient_gen // -defSb genS //.
   apply/subsetP=> xb Xxb; apply/imsetP; rewrite (setIidPr nPX).
   by exists (repr xb); rewrite /= ?coset_reprK //; exact: mem_imset.
-pose f (a : {perm gT}) := [ffun x => if x \in X then x^-1 * a x else 1].
+pose f (a : {perm gT}) := [ffun x => if x \in X return gT then x^-1 * a x else 1].
 have injf: {in A &, injective f}.
   move=> _ _ /morphimP[y nSy Ry ->] /morphimP[z nSz Rz ->].
   move/ffunP=> eq_fyz; apply: (@eq_Aut _ S); rewrite ?Aut_aut //= => x Sx.
@@ -1308,7 +1308,7 @@ apply/(Aut_sub_fullP (center_sub E)); rewrite /= defZ => g injg gZ.
 pose k := invm (injm_Zp_unitm z) (aut injg gZ).
 have fM: {in K &, {morph expgn^~ (val k): u v / u * v}}.
   by move=> u v Ku Kv; rewrite /= expgMn // /commute (centsP cKK).
-pose f := Morphism fM; have fK: f @* K = K.
+pose f := Morphism (mfun:=expgn^~ (val k)) fM; have fK: f @* K = K.
   apply/setP=> u; rewrite morphimEdom.
   apply/imsetP/idP=> [[v Kv ->] | Ku]; first exact: groupX.
   exists (u ^+ expg_invn K (val k)); first exact: groupX.

@@ -284,13 +284,13 @@ Variables (T : finType) (x : T).
 Notation T' := {y | y != x}.
 
 Lemma rfd_funP (p : {perm T}) (u : T') :
-  let p1 := if p x == x then p else 1 in p1 (val u) != x.
+  let p1 := if p x == x return {perm T} then p else 1 in p1 (val u) != x.
 Proof.
 case: (p x =P x) => /= [pxx|_]; last by rewrite perm1 (valP u).
 by rewrite -{2}pxx (inj_eq (@perm_inj _ p)); exact: (valP u).
 Qed.
 
-Definition rfd_fun p := [fun u => Sub ((_ : {perm T}) _) (rfd_funP p u) : T'].
+Unset Use Munify. Definition rfd_fun p := [fun u => Sub ((_ : {perm T}) (val u)) (rfd_funP p u) : T']. Set Use Munify.
 
 Lemma rfdP p : injective (rfd_fun p).
 Proof.
@@ -363,7 +363,7 @@ rewrite odd_permM odd_tperm eq_sym Hx1 morphM; last 2 first.
 - by rewrite 2!inE; exact/astab1P.
 - by rewrite 2!inE; apply/astab1P; rewrite -{1}Hpx /= /aperm -permM.
 rewrite odd_permM Hrec //=; congr (_ (+) _).
-pose x2 : T' := Sub x1 nx1x; pose px2 : T' := Sub (p x1) npx1x.
+pose x2 : T' := Sub (P:=fun x1=>x1 != x) x1 nx1x; pose px2 : T' := Sub (P:=fun x1=>x1 != x) (p x1) npx1x.
 suff ->: rfd (tperm x1 (p x1)) = tperm x2 px2.
   by rewrite odd_tperm -val_eqE eq_sym.
 apply/permP => z; apply/val_eqP; rewrite permE /= tpermD // eqxx.
@@ -395,7 +395,7 @@ case/setIP=> Hax1; move/astab1P; rewrite /= /aperm => Hx1.
 case/setIP=> Hay1; move/astab1P; rewrite /= /aperm => Hy1 Hr.
 apply/permP => z.
 case (z =P x) => [->|]; [by rewrite Hx1 | move/eqP => nzx].
-move: (congr1 (fun q : {perm T'} => q (Sub z nzx)) Hr).
+move: (congr1 (fun q : {perm T'} => q (Sub (P:=fun x1=>x1 != x) z nzx)) Hr).
 by rewrite !permE => [[]]; rewrite Hx1 Hy1 !eqxx.
 Qed.
 
