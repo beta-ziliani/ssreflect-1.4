@@ -400,7 +400,7 @@ Lemma mulfxA : associative (subfext_mul).
 Proof.
 elim/quotW=> x; elim/quotW=> y; elim/quotW=> w; rewrite !piE /subfx_mul_rep.
 rewrite !poly_rV_K_modp_subproof [_ %% p' * _ w]mulrC.
-rewrite !modp_mul // mulrA. Unset Use Munify. by rewrite [_ * _ w]mulrC [_ w * (_ x * _ y)]mulrC. Set Use Munify.
+rewrite !modp_mul // mulrA. by rewrite [_ * rVpoly w]mulrC [rVpoly w * (rVpoly x * rVpoly y)]mulrC.
 Qed.
 
 Lemma mulfxC : commutative subfext_mul.
