@@ -1284,7 +1284,7 @@ have [Da _] := setIP sDa; rewrite !inE Da.
 apply/subsetP/subsetP=> [nSa _ /imsetP[x Sx ->] | nSa x Sx]; rewrite !inE.
   by have:= nSa x Sx; rewrite inE => /(mem_imset val); rewrite val_subact sDa.
 have:= nSa _ (mem_imset val Sx); rewrite inE => /imsetP[y Sy def_y].
-by rewrite ((_ a =P y) _) // -val_eqE val_subact sDa def_y.
+Unset Use Munify. by rewrite ((_ a =P y) _) // -val_eqE val_subact sDa def_y. Set Use Munify.
 Qed.
 
 Lemma afix_subact A :

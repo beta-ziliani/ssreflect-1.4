@@ -419,11 +419,11 @@ Fact ltz_def x y : (ltz x y) = (y != x) && (lez x y).
 Proof.
 by move: x y=> [] x [] y //=; rewrite (ltn_neqAle, leq_eqVlt) // eq_sym.
 Qed.
-
+Unset Use Munify.
 Definition Mixin :=
    NumMixin lez_norm_add ltz_add eq0_normz (in2W lez_total) normzM
             lez_def ltz_def.
-
+Set Use Munify.
 End intOrdered.
 End intOrdered.
 

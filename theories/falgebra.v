@@ -480,10 +480,10 @@ Proof.
 have [-> | nzU] := eqVneq U 0%VS.
   by right=> [[e []]]; rewrite memv0 => ->.
 pose X := vbasis U; pose feq f1 f2 := [tuple of map f1 X ++ map f2 X].
-have feqL f i: tnth (feq _ f _) (lshift _ i) = f X`_i.
+Unset Use Munify. have feqL f i: tnth (feq _ f _) (lshift _ i) = f X`_i. Set Use Munify.
   set v := f _; rewrite (tnth_nth v) /= nth_cat size_map size_tuple.
   by rewrite ltn_ord (nth_map 0) ?size_tuple.
-have feqR f i: tnth (feq _ _ f) (rshift _ i) = f X`_i.
+Unset Use Munify. have feqR f i: tnth (feq _ _ f) (rshift _ i) = f X`_i. Set Use Munify.
   set v := f _; rewrite (tnth_nth v) /= nth_cat size_map size_tuple.
   by rewrite ltnNge leq_addr addKn /= (nth_map 0) ?size_tuple.
 apply: decP (vsolve_eq (feq _ amulr amull) (feq _ id id) U) _.
@@ -495,7 +495,7 @@ apply: (iffP (vsolve_eqP _ _ _)) => [[e Ue id_e] | [e [Ue _ id_e]]].
   split; apply/eq_bigr=> i _; rewrite -(scalerAr, scalerAl); congr (_ *: _).
     by have:= id_e (lshift _ i); rewrite !feqL lfunE.
   by have:= id_e (rshift _ i); rewrite !feqR lfunE.
-have{id_e} /all_and2[ideX idXe]:= id_e _ (vbasis_mem (mem_tnth _ X)).
+Unset Use Munify. have{id_e} /all_and2[ideX idXe]:= id_e _ (vbasis_mem (mem_tnth _ X)). Set Use Munify.
 exists e => // k; rewrite -[k]splitK.
 by case: (split k) => i; rewrite !(feqL, feqR) lfunE /= -tnth_nth.
 Qed.

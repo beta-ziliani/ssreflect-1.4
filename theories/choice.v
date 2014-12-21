@@ -142,7 +142,7 @@ Variable T : Type.
 
 Unset Elimination Schemes.
 Inductive tree := Leaf of T | Node of nat & seq tree.
-
+Unset Use Munify.
 Definition tree_rect K IH_leaf IH_node :=
   fix loop t : K t := match t with
   | Leaf x => IH_leaf x
@@ -151,7 +151,9 @@ Definition tree_rect K IH_leaf IH_node :=
       if f is t :: f' then (loop t, iter_pair f') else tt in
     IH_node n f0 (iter_pair f0)
   end.
+Set Use Munify.
 Definition tree_rec (K : tree -> Set) := @tree_rect K.
+Unset Use Munify.
 Definition tree_ind K IH_leaf IH_node :=
   fix loop t : K t : Prop := match t with
   | Leaf x => IH_leaf x
@@ -160,7 +162,7 @@ Definition tree_ind K IH_leaf IH_node :=
         if f is t :: f' then conj (loop t) (iter_conj f') else Logic.I
       in IH_node n f0 (iter_conj f0)
     end.
-
+Set Use Munify.
 Fixpoint encode t : seq (nat + T) :=
   match t with
   | Leaf x => [:: inr _ x]
