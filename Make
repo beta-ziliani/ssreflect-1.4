@@ -10,6 +10,7 @@
 -R theories Ssreflect
 -I src
 CAMLP4OPTIONS = "-loc loc"
+COQFLAGS? = "$(OPT) $(COQLIBS) $(OTHERFLAGS) $(COQ_XML)"
 src/ssrmatching.mli
 src/ssrmatching.ml4
 src/ssreflect.ml4
