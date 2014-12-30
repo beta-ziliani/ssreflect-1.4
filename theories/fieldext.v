@@ -400,7 +400,7 @@ Lemma mulfxA : associative (subfext_mul).
 Proof.
 elim/quotW=> x; elim/quotW=> y; elim/quotW=> w; rewrite !piE /subfx_mul_rep.
 rewrite !poly_rV_K_modp_subproof [_ %% p' * _ w]mulrC.
-Unset Use Munify. by rewrite !modp_mul // mulrA [_ * _ w]mulrC [_ w * (_ x * _ y)]mulrC. Set Use Munify.
+by rewrite !modp_mul // mulrA [_ * _ w]mulrC [_ w * (_ x * _ y)]mulrC.
 Qed.
 
 Lemma mulfxC : commutative subfext_mul.
@@ -1210,7 +1210,7 @@ Section Horner.
 
 Variables z : L.
 
-Unset Use Munify. Definition fieldExt_horner := horner_morph (fun x => mulrC z (in_alg L x)). Set Use Munify.
+Unset Use Munify. Definition fieldExt_horner := horner_morph (fun x => mulrC z (in_alg L x)). Set Use Munify. (* no idea *)
 Canonical fieldExtHorner_additive := [additive of fieldExt_horner].
 Canonical fieldExtHorner_rmorphism := [rmorphism of fieldExt_horner].
 Lemma fieldExt_hornerC b : fieldExt_horner b%:P = b%:A.

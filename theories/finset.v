@@ -1650,9 +1650,7 @@ elim: r => [|i r IHr]; first by rewrite big_nil big_pred0.
 rewrite big_cons {}IHr; case r_i: (i \in r).
   rewrite (setUidPr _) ?bigcup_sup //.
   by apply: eq_bigl => j; rewrite !inE; case: eqP => // ->.
-Unset Aggressive.
-rewrite (bigD1 i (mem_head i r)) /=; congr (_ :|: _).
-Set Aggressive.
+Unset Aggressive. rewrite (bigD1 i (mem_head i r)) /=; congr (_ :|: _). Set Aggressive.
 by apply: eq_bigl => j /=; rewrite andbC; case: eqP => // ->.
 Qed.
 

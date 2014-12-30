@@ -328,7 +328,7 @@ Notation "[ 'unlockable' 'fun' C ]" := (@Unlockable _ (fun _ => _) C (unlock _))
 (* Generic keyed constant locking. *)
 
 (* The argument order ensures that k is always compared before T. *)
-Definition locked_with (k : unit) := let: tt := k return forall T, T -> T in fun (T : Type) (x : T) => x : T.
+Definition locked_with k := let: tt := k in fun T x => x : T.
 
 (* This can be used as a cheap alternative to cloning the unlockable instance *)
 (* below, but with caution as unkeyed matching can be expensive.              *)

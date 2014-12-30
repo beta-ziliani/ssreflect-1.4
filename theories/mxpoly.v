@@ -265,8 +265,8 @@ Local Notation n := n'.+1.
 Variable A : 'M[R]_n.
 Implicit Types p q : {poly R}.
 
-Unset Use Munify. Definition horner_mx := horner_morph (fun a => scalar_mx_comm a A). Set Use Munify.
-Canonical horner_mx_additive := [additive of horner_mx]. Set Use Munify.
+Unset Use Munify. Definition horner_mx := horner_morph (fun a => scalar_mx_comm a A). Set Use Munify. (* no idea *)
+Canonical horner_mx_additive := [additive of horner_mx].
 Canonical horner_mx_rmorphism := [rmorphism of horner_mx].
 
 Lemma horner_mx_C a : horner_mx a%:P = a%:M.
@@ -424,7 +424,7 @@ transitivity (\det (a%:M - A) == 0).
   by apply/eqP; rewrite -mul_mx_scalar eq_sym -subr_eq0 -mulmxBr Av_av.
 congr (_ == 0); rewrite horner_sum; apply: eq_bigr => s _.
 rewrite hornerM horner_exp !hornerE; congr (_ * _).
-Unset Use Munify. rewrite (big_morph _ (fun p q => hornerM p q a) (hornerC 1 a)). Set Use Munify.
+Unset Use Munify. rewrite (big_morph _ (fun p q => hornerM p q a) (hornerC 1 a)). Set Use Munify. (* postpone *)
 by apply: eq_bigr => i _; rewrite !mxE !(hornerE, hornerMn).
 Qed.
 
@@ -718,7 +718,7 @@ pose memM E n (X : 'rV_n) y := exists a, rVin E n a /\ y = (a *m X^T) 0 0.
 pose finM E S := exists n, exists X, forall y, memM E n X y <-> S y.
 have tensorM E n1 n2 X Y: finM E (memM (memM E n2 Y) n1 X).
   exists (n1 * n2)%N, (mxvec (X^T *m Y)) => y.
-  Unset Use Munify. split=> [[a [Ea Dy]] | [a1 [/fin_all_exists[a /all_and2[Ea Da1]] ->]]]. Set Use Munify.
+  Unset Use Munify. split=> [[a [Ea Dy]] | [a1 [/fin_all_exists[a /all_and2[Ea Da1]] ->]]]. Set Use Munify.  (* no idea *)
     exists (Y *m (vec_mx a)^T); split=> [i|].
       exists (row i (vec_mx a)); split=> [j|]; first by rewrite !mxE; apply: Ea.
       by rewrite -row_mul -{1}[Y]trmxK -trmx_mul !mxE.
@@ -733,7 +733,7 @@ suffices [m [X [[u [_ Du]] idealM]]]: exists m,
 - do [set M := memM _ m X; move: q.[w] => z] in idealM *.
   have MX i: M (X 0 i).
     by exists (delta_mx 0 i); split=> [j|]; rewrite -?rowE !mxE.
-  Unset Use Munify. have /fin_all_exists[a /all_and2[Fa Da1]] i := idealM _ (MX i). Set Use Munify.
+  Unset Use Munify. have /fin_all_exists[a /all_and2[Fa Da1]] i := idealM _ (MX i). Set Use Munify. (* no idea *)
   have /fin_all_exists[r Dr] i := fin_all_exists (Fa i).
   pose A := \matrix_(i, j) r j i; pose B := z%:M - map_mx RtoK A.
   have XB0: X *m B = 0.

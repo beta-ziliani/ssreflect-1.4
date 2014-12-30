@@ -3964,10 +3964,8 @@ have sub_var_tsubst s t0: s.1 >= ub_var t0 -> tsubst t0 s = t0.
   - by move=> t1 IHt1 t2 IHt2; rewrite geq_max => /andP[/IHt1-> /IHt2->].
   - by move=> t1 IHt1 /IHt1->.
   - by move=> t1 IHt1 n /IHt1->.
-Unset Use Munify.
 pose fix rsub t' m r : term R :=
   if r is u :: r' then tsubst (rsub t' m.+1 r') (m, u^-1)%T else t'.
-Set Use Munify.
 pose fix ub_sub m r : Prop :=
   if r is u :: r' then ub_var u <= m /\ ub_sub m.+1 r' else true.
 suffices{t} rsub_to_r t r0 m: m >= ub_var t -> ub_sub m r0 ->
@@ -4354,7 +4352,7 @@ Qed.
 
 Lemma prodf_seq_eq0 I r (P : pred I) (F : I -> R) :
   (\prod_(i <- r | P i) F i == 0) = has (fun i => P i && (F i == 0)) r.
-Proof. Unset Use Munify. by rewrite (big_morph _ mulf_eq0 (oner_eq0 _)) big_has_cond. Set Use Munify. Qed.
+Proof. Unset Use Munify. by rewrite (big_morph _ mulf_eq0 (oner_eq0 _)) big_has_cond. Set Use Munify. Qed. (* postpone *)
 
 Lemma mulf_neq0 x y : x != 0 -> y != 0 -> x * y != 0.
 Proof. move=> x0 y0; rewrite mulf_eq0; exact/norP. Qed.

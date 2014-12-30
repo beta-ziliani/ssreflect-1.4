@@ -290,7 +290,7 @@ case: (p x =P x) => /= [pxx|_]; last by rewrite perm1 (valP u).
 by rewrite -{2}pxx (inj_eq (@perm_inj _ p)); exact: (valP u).
 Qed.
 
-Unset Use Munify. Definition rfd_fun p := [fun u => Sub ((_ : {perm T}) _) (rfd_funP p u) : T']. Set Use Munify.
+Unset Use Munify. Definition rfd_fun p := [fun u => Sub ((_ : {perm T}) _) (rfd_funP p u) : T']. Set Use Munify. (* postpone *)
 
 Lemma rfdP p : injective (rfd_fun p).
 Proof.
@@ -363,7 +363,7 @@ rewrite odd_permM odd_tperm eq_sym Hx1 morphM; last 2 first.
 - by rewrite 2!inE; exact/astab1P.
 - by rewrite 2!inE; apply/astab1P; rewrite -{1}Hpx /= /aperm -permM.
 rewrite odd_permM Hrec //=; congr (_ (+) _).
-Unset Use Munify. pose x2 : T' := Sub x1 nx1x; pose px2 : T' := Sub (p x1) npx1x. Set Use Munify.
+Unset Use Munify. pose x2 : T' := Sub x1 nx1x; pose px2 : T' := Sub (p x1) npx1x. Set Use Munify. (* postpone *)
 suff ->: rfd (tperm x1 (p x1)) = tperm x2 px2.
   by rewrite odd_tperm -val_eqE eq_sym.
 apply/permP => z; apply/val_eqP; rewrite permE /= tpermD // eqxx.
@@ -496,7 +496,7 @@ case Ez: (pred0b
             (predD1 (predD1 (predD1 (predD1 T x) (h x)) (g x)) ((h * g) x))).
 - move: oT; rewrite /pred0b in Ez.
   rewrite (cardD1 x) (cardD1 (h x)) (cardD1 (g x)) (cardD1 ((h * g) x)).
-  Unset Use Munify. by rewrite (eqP Ez); do 3!case: (_ x \in _). Set Use Munify.
+  by rewrite (eqP Ez); do 3!case: (_ x \in _).
 case/pred0Pn: Ez => z.
 case/and5P=> diff_hgx_z diff_gx_z diff_hx_z diff_x_z /= Hz.
 pose S1 := [tuple x; h x; g x; z].

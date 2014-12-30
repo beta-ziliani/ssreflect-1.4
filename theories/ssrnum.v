@@ -1787,7 +1787,7 @@ Proof. exact: (big_ind _ _ (@ler_paddl 0)). Qed.
 Lemma ler_sum I (r : seq I) (P : pred I) (F G : I -> R) :
     (forall i, P i -> F i <= G i) ->
   \sum_(i <- r | P i) F i <= \sum_(i <- r | P i) G i.
-Proof. Unset Use Munify. exact: (big_ind2 _ (lerr _) ler_add). Set Use Munify. Qed.
+Proof. Unset Use Munify. exact: (big_ind2 _ (lerr _) ler_add). Set Use Munify. Qed. (* postpone *)
 
 Lemma psumr_eq0 (I : eqType) (r : seq I) (P : pred I) (F : I -> R) :
     (forall i, P i -> 0 <= F i) ->
@@ -1802,7 +1802,7 @@ Lemma psumr_eq0P (I : finType) (P : pred I) (F : I -> R) :
      (forall i, P i -> 0 <= F i) -> \sum_(i | P i) F i = 0 ->
   (forall i, P i -> F i = 0).
 Proof.
-Unset Use Munify. move=> F_ge0 /eqP; rewrite psumr_eq0 // -big_all big_andE => /forallP hF i Pi. Set Use Munify.
+Unset Use Munify. move=> F_ge0 /eqP; rewrite psumr_eq0 // -big_all big_andE => /forallP hF i Pi. Set Use Munify. (* no idea *)
 by move: (hF i); rewrite implyTb Pi /= => /eqP.
 Qed.
 

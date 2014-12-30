@@ -142,7 +142,7 @@ Variable T : Type.
 
 Unset Elimination Schemes.
 Inductive tree := Leaf of T | Node of nat & seq tree.
-Unset Use Munify.
+Unset Use Munify. (* problem of the sort x, x':=x |- ?X[x] =?= K x' *)
 Definition tree_rect K IH_leaf IH_node :=
   fix loop t : K t := match t with
   | Leaf x => IH_leaf x

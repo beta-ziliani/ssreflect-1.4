@@ -657,8 +657,8 @@ Section BigCap.
 Variable I : finType.
 Implicit Type P : pred I.
 
-Unset Use Munify. Lemma bigcapv_inf i0 P Us V :
-  P i0 -> (Us i0 <= V -> \bigcap_(i | P i) Us i <= V)%VS.  Set Use Munify.
+Lemma bigcapv_inf i0 P Us V :
+  P i0 -> (Us i0 <= V -> \bigcap_(i | P i) Us i <= V)%VS.
 Proof. by move=> Pi0; apply: subv_trans; rewrite (bigD1 i0) ?capvSl. Qed.
 
 Lemma subv_bigcapP {P U Vs} :
